@@ -1,13 +1,20 @@
+MKDIR_P = mkdir -p
 DEPS = proto.h
 
-shell: main.o proto.o
-	$(CC) $? -o shell
+shell: build_dir main.o proto.o
+	$(CC) build/*.o -o build/shell
 
 main.o: main.c
-	$(CC) $? -c main.c
+	$(CC) -o build/main.o -c $?
 
 proto.o: proto.c
-	$(CC) $? -c proto.c
+	$(CC) -o build/proto.o -c $?
+
+build_dir:
+	${MKDIR_P} build
+
+run:
+	./build/shell
 
 clean:
-	rm -f shell *.o
+	rm -r build

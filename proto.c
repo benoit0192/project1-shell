@@ -25,7 +25,6 @@ Arguments:
 	args: Array of strings
 Process the command by splitting the string for each argument
 **/
-
 void string_processing(char *cmd, char **args){
 
 	char *token, *delimiter=" ";

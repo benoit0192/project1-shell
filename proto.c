@@ -25,15 +25,16 @@ Arguments:
 	args: Array of strings
 Process the command by splitting the string for each argument
 **/
+
 void string_processing(char *cmd, char **args){
 
 	char *token, *delimiter=" ";
-
+	
 	cmd[strcspn(cmd, "\r\n")] = 0;	//get rid of the trailing new line character
 	char *dup_cmd = strdup(cmd);
 	for(int i=0;(token = strsep(&dup_cmd, delimiter)) != NULL; i++){
 		if(i == 0){					//command
-			char temp[100];
+			static char temp[100];
 			strcpy(temp, "/bin/");
 			args[i] = strcat(temp, token);
 			//printf("%s\n", args[i]);

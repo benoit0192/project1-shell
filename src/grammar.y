@@ -6,54 +6,92 @@
 
 %}
 
-%token <string> IDENTIFIER CONSTANTI
-%token IF THEN ELSE
-%token RRIGHT
-%token ANYTHING
-%start program
+%token <string> STRING QUOTED_STRING IDENTIFIER
+%token IF THEN ELSE FI
+%start script
 %union {
   char *string;
 }
 %%
 
-program
-: statement_list
+script
+: sequence
+| sequence '\n' script
 ;
 
-statement_list
-: statement
-| statement_list statement
+sequence
+: sequence_element
+| sequence ';' sequence_element
 ;
 
-statement
-: compound_statement
-| definition_statement
-| selection_statement
-| parallel_statement_list
-| pipe_statement_list
+sequence_element
+: parallel_command
+| declaration
 ;
 
-compound_statement
-: '(' statement_list ')'
+parallel_command
+: piped_command
+| pre_spaced_command '&'
+| parallel_command '&' pre_spaced_command
 ;
 
-definition_statement
-: IDENTIFIER '=' IDENTIFIER
+declaration
+: IDENTIFIER '=' argument
 ;
 
-selection_statement
-: IF statement THEN statement
-| IF statement THEN statement ELSE statement
+piped_command
+: pre_spaced_command
+| piped_command '|' pre_spaced_command
 ;
 
-parallel_statement_list
-: statement '&' statement
-| parallel_statement_list '&' statement
+pre_spaced_command
+: post_spaced_command
+| ' ' pre_spaced_command
 ;
 
-pipe_statement_list
-: statement '|' statement
-| pipe_statement_list '|' statement
+post_spaced_command
+: post_spaced_command ' '
+| command
+;
+
+command
+: conditional
+| argument_list
+;
+
+conditional
+: IF sequence THEN sequence FI
+| IF sequence ELSE sequence FI
+| IF sequence THEN sequence ELSE sequence FI
+;
+
+argument_list
+: argument
+| argument_list ' ' argument
+;
+
+argument
+: string
+| quoted_string
+;
+
+string
+: STRING
+| STRING var_name string
+;
+
+quoted_string
+: '"' quoted_string_content '"'
+;
+
+quoted_string_content
+: QUOTED_STRING
+| QUOTED_STRING var_name quoted_string_content
+;
+
+var_name
+: '$' IDENTIFIER
+;
 
 %%
 #include <stdio.h>
@@ -76,19 +114,17 @@ int yyerror (char *s) {
 int main (int argc, char *argv[]) {
     FILE *input = NULL;
     if (argc==2) {
-	input = fopen (argv[1], "r");
-	file_name = strdup (argv[1]);
-	if (input) {
-	    yyin = input;
-	}
-	else {
-	  fprintf (stderr, "%s: Could not open %s\n", *argv, argv[1]);
+        input = fopen (argv[1], "r");
+        file_name = strdup (argv[1]);
+	    if (input) {
+	        yyin = input;
+	    } else {
+	        fprintf (stderr, "%s: Could not open %s\n", *argv, argv[1]);
+	        return 1;
+	    }
+    } else {
+	    fprintf (stderr, "%s: error: no input file\n", *argv);
 	    return 1;
-	}
-    }
-    else {
-	fprintf (stderr, "%s: error: no input file\n", *argv);
-	return 1;
     }
     yyparse ();
     free (file_name);

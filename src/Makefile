@@ -9,7 +9,7 @@ shell:grammar.c scanner.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 grammar.c:grammar.y
-	$(YACC) -t -d -o $@ --defines=grammar.tab.h $^
+	$(YACC) -t -d -o $@ --defines=grammar.tab.h $^ --debug --verbose
 
 %.c:%.l
 	$(LEX) -o $@ $^

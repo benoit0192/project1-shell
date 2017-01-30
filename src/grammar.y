@@ -15,7 +15,10 @@
 %%
 
 script
-: sequence
+: '\n'
+| '\n' script       /*repeated new lines */
+| sequence
+| sequence '\n'
 | sequence '\n' script
 ;
 
@@ -31,12 +34,14 @@ sequence_element
 
 parallel_command
 : piped_command
-| pre_spaced_command '&'
+| parallel_command '&'
+| parallel_command '&' ' '      /* useful for the conditions */
 | parallel_command '&' pre_spaced_command
+| parallel_command '|' pre_spaced_command
 ;
 
 declaration
-: IDENTIFIER '=' argument
+: var_name argument     /* old version: IDENTIFIER '=' argument */
 ;
 
 piped_command
@@ -67,6 +72,7 @@ conditional
 
 argument_list
 : argument
+| argument_list ' '
 | argument_list ' ' argument
 ;
 
@@ -76,21 +82,22 @@ argument
 ;
 
 string
-: STRING
+: STRING                    {printf("STRING:%s\n",$1);}
+| var_name
 | STRING var_name string
 ;
 
 quoted_string
-: '"' quoted_string_content '"'
+: quoted_string_content     /* old version: '"' quoted_string_content '"' */
 ;
 
 quoted_string_content
-: QUOTED_STRING
+: QUOTED_STRING             {printf("QUOTED_STRING:%s\n",$1);}
 | QUOTED_STRING var_name quoted_string_content
 ;
 
 var_name
-: '$' IDENTIFIER
+: IDENTIFIER                {printf("IDENTIFIER:%s\n",$1);}     /* old version: '$' IDENTIFIER */
 ;
 
 %%

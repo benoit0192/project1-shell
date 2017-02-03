@@ -7,6 +7,10 @@ myvar="var \"content\""
 # it can access environment variables
 echo $myvar
 
+# it can unset vriables like this
+myvar=
+echo $myvar
+
 # unexisting vars are considered empty (no error)
 echo $idontexist
 

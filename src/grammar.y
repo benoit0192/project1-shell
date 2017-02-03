@@ -6,8 +6,7 @@
 
 %}
 
-%token <string> STRING QUOTED_STRING IDENTIFIER
-%token IF THEN ELSE FI
+%token <string> WORD ASSIGNMENT_WORD
 %start script
 %union {
   char *string;
@@ -15,89 +14,63 @@
 %%
 
 script
-: '\n'
-| '\n' script       /*repeated new lines */
+: line_break command_lines line_break
+| line_break
+;
+
+command_lines
+: command_lines newline_list command_line
+|                            command_line
+;
+
+command_line
+: sequence separator
 | sequence
-| sequence '\n'
-| sequence '\n' script
 ;
 
 sequence
-: sequence_element
-| sequence ';' sequence_element
+:                    pipeline
+| sequence separator pipeline
 ;
 
-sequence_element
-: parallel_command
-| declaration
+pipeline
+:              statement
+| pipeline '|' statement
 ;
 
-parallel_command
-: piped_command
-| parallel_command '&'
-| parallel_command '&' ' '      /* useful for the conditions */
-| parallel_command '&' pre_spaced_command
-| parallel_command '|' pre_spaced_command
-;
-
-declaration
-: var_name argument     /* old version: IDENTIFIER '=' argument */
-;
-
-piped_command
-: pre_spaced_command
-| piped_command '|' pre_spaced_command
-;
-
-pre_spaced_command
-: post_spaced_command
-| ' ' pre_spaced_command
-;
-
-post_spaced_command
-: post_spaced_command ' '
+statement
+: assignment
 | command
+| group
+;
+
+assignment
+: ASSIGNMENT_WORD WORD
+| ASSIGNMENT_WORD
 ;
 
 command
-: conditional
-| argument_list
+:         WORD
+| command WORD
 ;
 
-conditional
-: IF sequence THEN sequence FI
-| IF sequence ELSE sequence FI
-| IF sequence THEN sequence ELSE sequence FI
+group
+: '(' sequence ')'
 ;
 
-argument_list
-: argument
-| argument_list ' '
-| argument_list ' ' argument
+line_break
+: newline_list
+| /* this can be empty */
 ;
 
-argument
-: string
-| quoted_string
+newline_list
+:              '\n'
+| newline_list '\n'
 ;
 
-string
-: STRING                    {printf("STRING:%s\n",$1);}
-| var_name
-| STRING var_name string
-;
-
-quoted_string
-: quoted_string_content     /* old version: '"' quoted_string_content '"' */
-;
-
-quoted_string_content
-: QUOTED_STRING             {printf("QUOTED_STRING:%s\n",$1);}
-| QUOTED_STRING var_name quoted_string_content
-;
-
-var_name
-: IDENTIFIER                {printf("IDENTIFIER:%s\n",$1);}     /* old version: '$' IDENTIFIER */
+separator
+: '&'
+| ';'
 ;
 
 %%

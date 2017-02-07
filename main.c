@@ -7,7 +7,7 @@
 #include "proto.h"
 
 #define	MAX_CHAR	100
-
+/*
 int main(int argc, char *argv[]){
 
 	int pfd[2], status;
@@ -39,3 +39,4 @@ int main(int argc, char *argv[]){
 
 	return 0;
 }	
+*/

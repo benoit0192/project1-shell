@@ -1,5 +1,6 @@
 %{
     #include <stdio.h>
+    #include "structures/command.h"
     extern int yylineno;
     int yylex ();
     int yyerror ();
@@ -74,39 +75,17 @@ separator
 ;
 
 %%
-#include <stdio.h>
-#include <string.h>
+// name of the script file being parsed (if reading from file)
+// initialized in main()
+extern char *file_name;
 
-extern char yytext[];
+// position in the file, set by the scanner
 extern int column;
 extern int yylineno;
-extern FILE *yyin;
 
-char *file_name = NULL;
 
 int yyerror (char *s) {
     fflush (stdout);
     fprintf (stderr, "%s:%d:%d: %s\n", file_name, yylineno, column, s);
-    return 0;
-}
-
-
-int main (int argc, char *argv[]) {
-    FILE *input = NULL;
-    if (argc==2) {
-        input = fopen (argv[1], "r");
-        file_name = strdup (argv[1]);
-	    if (input) {
-	        yyin = input;
-	    } else {
-	        fprintf (stderr, "%s: Could not open %s\n", *argv, argv[1]);
-	        return 1;
-	    }
-    } else {
-	    fprintf (stderr, "%s: error: no input file\n", *argv);
-	    return 1;
-    }
-    yyparse ();
-    free (file_name);
     return 0;
 }

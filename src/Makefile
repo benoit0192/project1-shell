@@ -1,21 +1,28 @@
+
+# Run this Makefile with 'gmake' instead of 'make' in Minix 3 (or $^ won't work)
+
 LEX=lex
 YACC=bison
-CFLAGS=-Wall
-CC=gcc
+CFLAGS=-g -Wall
+CC=clang
 
-all:shell tools/errno
+SOURCES=main.c \
+	    grammar.c \
+	    scanner.c
 
-shell:grammar.c scanner.c
+all:shell
+
+shell: $(SOURCES)
 	$(CC) $(CFLAGS) -o $@ $^
 
 grammar.c:grammar.y
-	$(YACC) -t -d -o $@ --defines=grammar.tab.h $^ --debug --verbose
+	$(YACC) -t -d -o $@ --defines=grammar.tab.h $^
 
-%.c:%.l
+scanner.c:scanner.l
 	$(LEX) -o $@ $^
 
 tools/errno:tools/errno.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f grammar.c grammar.tab.h scanner.c shell *~ tools/errno
+	rm -f grammar.c grammar.tab.h scanner.c shell tools/errno

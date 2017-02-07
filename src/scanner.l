@@ -6,6 +6,7 @@ void count();
 %}
 D[0-9]
 L[a-zA-Z_]
+%option nounput noinput
 %option yylineno
 %%
 "#".*					{ count(); printf("comment\n");}
@@ -23,11 +24,6 @@ L[a-zA-Z_]
 .	 				  	{ /* ignore bad characters */ }
 
 %%
-// (\\.|[^"# \n|&=;\$])* 	{ count(); yylval.string=strdup(yytext); return(STRING); }
-// (\\.|[^"\$])*         	{ count(); yylval.string=strdup(yytext); return(QUOTED_STRING); }
-//
-
-// [\t\v\f]			  		{ count(); }
 
 int yywrap() {
 	return 1;

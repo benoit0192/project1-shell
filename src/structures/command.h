@@ -1,6 +1,8 @@
 #ifndef _COMMAND_H_
 #define _COMMAND_H_
 
+#include <stdlib.h>
+
 
 /*---- Command ------------------------------------------------------------
 *   This structure is used to represent a simple command.
@@ -12,15 +14,33 @@
 *      - its ouput file descriptor
 *--------------------------------------------------------------------------*/
 
-struct command {
-    char * prog_name;
-    /*arg_list*/void * args;
-    int background;
-    int in;
-    int out;
+struct arg_list {
+    char * arg;
+    struct arg_list * next;
 };
 
+struct command {
+    char * prog_name;
+    struct arg_list * args;
+    int background;
+    int fd_in;
+    int fd_out;
+};
 
+/**
+ * allocate a new command structure and initialize its elements
+ */
+struct command* command__new();
 
+/**
+ * append the argument 'arg' at the end of the argument list of 'cmd'
+ * the argument should already have been duplicated with strdup()
+ */
+void command__append_arg(struct command *cmd, char *arg);
+
+/**
+ * Frees a command structure and all its contents
+ */
+void command__free(struct command *cmd);
 
 #endif // _COMMAND_H_

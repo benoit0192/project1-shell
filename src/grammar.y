@@ -1,6 +1,7 @@
 %{
     #include <stdio.h>
     #include "structures/command.h"
+    #include "structures/assignment.h"
     extern int yylineno;
     int yylex ();
     int yyerror ();
@@ -8,9 +9,15 @@
 %}
 
 %token <string> WORD ASSIGNMENT_WORD
+%type <string> separator
+%type <command> command
+%type <assignment> assignment
+%type <string> '&' ';'
 %start script
 %union {
   char *string;
+  struct command *command;
+  struct assignment *assignment;
 }
 %%
 
@@ -46,13 +53,23 @@ statement
 ;
 
 assignment
-: ASSIGNMENT_WORD WORD
-| ASSIGNMENT_WORD
+: ASSIGNMENT_WORD WORD {
+    $$ = assigment__new($1, $2);
+}
+| ASSIGNMENT_WORD {
+    $$ = assigment__new($1, strdup(""));
+}
 ;
 
 command
-:         WORD
-| command WORD
+:         WORD {
+    $$ = command__new();
+    $$->prog_name = $1;
+}
+| command WORD {
+    $$ = $1;
+    command__append_arg($$, $2);
+}
 ;
 
 group
@@ -70,14 +87,14 @@ newline_list
 ;
 
 separator
-: '&'
-| ';'
+: '&' { $$ = $1; }
+| ';' { $$ = $1; }
 ;
 
 %%
 // name of the script file being parsed (if reading from file)
 // initialized in main()
-extern char *file_name;
+extern char *script_filename;
 
 // position in the file, set by the scanner
 extern int column;
@@ -86,6 +103,6 @@ extern int yylineno;
 
 int yyerror (char *s) {
     fflush (stdout);
-    fprintf (stderr, "%s:%d:%d: %s\n", file_name, yylineno, column, s);
+    fprintf (stderr, "%s:%d:%d: %s\n", script_filename, yylineno, column, s);
     return 0;
 }

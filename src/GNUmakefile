@@ -8,7 +8,10 @@ CC=clang
 
 SOURCES=main.c \
 	    grammar.c \
-	    scanner.c
+	    scanner.c \
+		input.c \
+		structures/command.c \
+		structures/assignment.c
 
 all:shell
 

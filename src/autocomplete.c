@@ -95,7 +95,10 @@ void history_load(char * filename) {
         fprintf(stderr, "\033[33mWARNING\033[39m No history file found (%s). A new history file will be created\n", filename);
         return;
     }
+    int n;
     while (getline(&line, &size, f) != -1) {
+        n = strlen(line);
+        if(line[n-1] == '\n') line[n-1] = 0; // remove trailing carriage returns if any
         history_push(line);
         line = NULL;
         size = 0;

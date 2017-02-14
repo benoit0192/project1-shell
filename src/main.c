@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "input.h"
+#include "autocomplete.h"
 
 /************************* GLOBAL VARIABLES *************************/
 
@@ -19,6 +20,8 @@ char *script_filename;
 // old terminal settings
 struct termios old;
 
+#define DEFAULT_HISTORYFILE "/root/shell_history"
+
 
 /************************* MAIN FUNCTIONS *************************/
 
@@ -32,6 +35,8 @@ void init_shell() {
     new=old;                              /* get old settings */
     new.c_lflag &=(~ICANON & ~ECHO);      /* modify the current settings */
     tcsetattr(STDIN_FILENO,TCSANOW,&new); /* push the settings on the terminal */
+
+    history_load(DEFAULT_HISTORYFILE);
 }
 
 
@@ -42,6 +47,8 @@ void clean_shell() {
 
     /* ok, restore initial behavior */
     tcsetattr(STDIN_FILENO,TCSANOW,&old);
+
+    history_save(DEFAULT_HISTORYFILE);
 }
 
 
@@ -52,7 +59,8 @@ void interactive_shell() {
     printf("Let's go interactive!\n");
     char * cmd = "";
     while(strcmp(cmd,"exit") != 0) {
-        cmd = input("> ");
+        cmd = input("\033[36m/root/ \033[32m>\033[39m ");
+        history_push(cmd);
     }
 }
 

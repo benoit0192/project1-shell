@@ -10,6 +10,7 @@ SOURCES=main.c \
 	    grammar.c \
 	    scanner.c \
 		input.c \
+		autocomplete.c \
 		structures/command.c \
 		structures/assignment.c
 

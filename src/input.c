@@ -231,6 +231,7 @@ char * input(char * prompt) {
             } else if(inbuff.buff != typing_buffer) {
                 free(inbuff.buff);
                 inbuff.buff = typing_buffer;
+                inbuff.pos = strlen(typing_buffer);
             }
         }
         refresh_screen(&inbuff);

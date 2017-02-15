@@ -65,19 +65,21 @@ void history_push(char * value) {
     while(history.size >= HISTORY_SIZE) {
         free(history_pop());
     }
-    // push new one
-    struct history_elt * tmp = malloc(sizeof(struct history_elt));
-    tmp->value = value;
-    tmp->size = strlen(value);
-    tmp->prev = NULL;
-    tmp->next = history.first;
-    if(history.first != NULL)
-        history.first->prev = tmp;
-    history.first = tmp;
-    if(history.last == NULL)
-        history.last = tmp;
-    history.size++;
-    reset_autocomplete();
+    if(strcmp(value, "") != 0){
+        // push new one
+        struct history_elt * tmp = malloc(sizeof(struct history_elt));
+        tmp->value = value;
+        tmp->size = strlen(value);
+        tmp->prev = NULL;
+        tmp->next = history.first;
+        if(history.first != NULL)
+            history.first->prev = tmp;
+        history.first = tmp;
+        if(history.last == NULL)
+            history.last = tmp;
+        history.size++;
+        reset_autocomplete();
+    }
 }
 
 void history_load(char * filename) {

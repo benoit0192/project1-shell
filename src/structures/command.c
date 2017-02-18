@@ -47,4 +47,5 @@ void command__free(struct command *cmd) {
         free(current);
         current = next;
     }
+    free(cmd);
 }

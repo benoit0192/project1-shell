@@ -9,7 +9,8 @@
     extern char *yytext;
     int yylex ();
     int yyerror ();
-
+    extern struct sequence *script;
+    extern int parsing_status;
 %}
 
 %token <string> WORD ASSIGNMENT_WORD
@@ -19,6 +20,12 @@
 %type <command> command
 %type <assignment> assignment
 %type <group> group
+%destructor { free($$); } <string>
+%destructor { sequence__free($$); } <sequence>
+%destructor { statement__free($$); } <statement>
+%destructor { command__free($$); } <command>
+%destructor { assignment__free($$); } <assignment>
+%destructor { group__free($$); } <group>
 %start script
 %union {
   char *string;
@@ -32,13 +39,18 @@
 %%
 
 script
-: line_break command_lines line_break { $$ = $2; }
-| line_break { $$ = NULL; }
+: line_break command_lines line_break { $$ = NULL; script = $2; parsing_status = 0; }
+| line_break { $$ = NULL; script = NULL; parsing_status = 0; }
 ;
 
 command_lines
-: command_lines newline_list command_line { $$ = $1; }
-|                            command_line { $$ = $1; }
+: command_lines newline_list command_line {
+    $$ = $1;
+    sequence__append_sequence($$, $3);
+}
+|                            command_line {
+    $$ = $1;
+}
 ;
 
 command_line
@@ -139,5 +151,6 @@ extern int yylineno;
 int yyerror (char *s) {
     fflush (stdout);
     fprintf (stderr, "%s:%d:%d: %s near token %s\n", script_filename, yylineno, column, s, yytext);
+    parsing_status = 1;
     return 0;
 }

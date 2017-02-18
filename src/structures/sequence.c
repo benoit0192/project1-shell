@@ -27,6 +27,25 @@ struct sequence * sequence__append_pipeline(struct sequence *seq, struct stateme
     }
 }
 
+/**
+ * appends elements of tail at the end of seq
+ */
+struct sequence * sequence__append_sequence(struct sequence *seq, struct sequence *tail) {
+    struct sequence *prev    = seq;
+    struct sequence *current = seq;
+    while(current != NULL) {
+        prev = current;
+        current = current->next;
+    }
+    if(prev == NULL) {
+        return tail;
+    } else {
+        prev->next = tail;
+        return seq;
+    }
+}
+
+
 
 void sequence__set_background(struct sequence *seq, int background) {
     if(seq == NULL) return;

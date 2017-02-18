@@ -18,6 +18,11 @@ struct sequence {
  */
 struct sequence * sequence__append_pipeline(struct sequence *seq, struct statement *pipe);
 
+/**
+ * appends elements of tail at the end of seq
+ */
+struct sequence * sequence__append_sequence(struct sequence *seq, struct sequence *tail);
+
 void sequence__free(struct sequence *seq);
 
 /**

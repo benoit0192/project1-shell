@@ -6,6 +6,7 @@
 
 #include "input.h"
 #include "autocomplete.h"
+#include "execute.h"
 
 /************************* GLOBAL VARIABLES *************************/
 
@@ -15,6 +16,7 @@ typedef struct yy_buffer_state * YY_BUFFER_STATE;
 extern int yyparse();
 extern YY_BUFFER_STATE yy_scan_string(char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
+extern void yylex_destroy();
 
 extern int column;
 extern int yylineno;
@@ -56,6 +58,8 @@ void clean_shell() {
     tcsetattr(STDIN_FILENO,TCSANOW,&old);
 
     history_save(DEFAULT_HISTORYFILE);
+
+    yylex_destroy();
 }
 
 
@@ -77,6 +81,10 @@ void interactive_shell() {
         yy_delete_buffer(buffer);
         // reset position in parser
         column = 0;
+
+        // execute command
+        // some_magic();
+        free_script();
 
         free(cmd);
     }

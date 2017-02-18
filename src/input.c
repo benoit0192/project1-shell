@@ -244,6 +244,7 @@ char * input(char * prompt) {
         if(typing_buffer != inbuff.buff)
             free(typing_buffer);
         free(inbuff.buff);
+        typing_buffer = NULL;
         inbuff.buff = tmp;
     }
     if(typing_buffer != inbuff.buff)

@@ -9,18 +9,17 @@ L[a-zA-Z_]
 %option nounput noinput
 %option yylineno
 %%
-"#".*					{ count(); printf("comment\n");}
+"#".*					{ count(); }
 " "*				  	{ count(); }
-"\n"			      	{ count(); printf("new_line\n"); return('\n'); }
-"|"				      	{ count(); printf("pipe\n"); return('|'); }
-"&"				      	{ count(); printf("ampersand\n"); return('&'); }
-"="				      	{ count(); printf("equal\n"); return('='); }
+"\n"			      	{ count(); return('\n'); }
+"|"				      	{ count(); return('|'); }
+"&"				      	{ count(); return('&'); }
 ";"				      	{ count(); return(';'); }
 "("				      	{ count(); return('('); }
 ")"				      	{ count(); return(')'); }
-(\\.|[^"# \n\|&=;\(\)])+	{ count(); yylval.string = strdup(yytext); printf("match:%s\n",yylval.string); /* replace env vars */ return(WORD); }
-\"(\\.|[^\"])*\"     	{ count(); yylval.string = strdup(yytext+1); yylval.string[strlen(yytext)-2] = 0; printf("quote_match:%s\n",yylval.string); /* replace env vars */ return(WORD); }
-{L}({L}|{D})*=  	  	{ count(); yylval.string = strdup(yytext); yylval.string[strlen(yytext)-1] = 0; printf("assignment:%s\n",yylval.string); return(ASSIGNMENT_WORD); }
+(\\.|[^"# \n\|&=;\(\)])+	{ count(); yylval.string = strdup(yytext); /* replace env vars */ return(WORD); }
+\"(\\.|[^\"])*\"     	{ count(); yylval.string = strdup(yytext+1); yylval.string[strlen(yytext)-2] = 0; /* replace env vars */ return(WORD); }
+{L}({L}|{D})*=  	  	{ count(); yylval.string = strdup(yytext); yylval.string[strlen(yytext)-1] = 0; return(ASSIGNMENT_WORD); }
 .	 				  	{ /* ignore bad characters */ }
 
 %%

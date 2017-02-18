@@ -11,6 +11,7 @@ SOURCES=main.c \
 	    scanner.c \
 		input.c \
 		autocomplete.c \
+		execute.c \
 		structures/statement.c \
 		structures/sequence.c \
 		structures/command.c \

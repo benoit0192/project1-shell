@@ -6,6 +6,7 @@
     #include "structures/assignment.h"
     #include "structures/group.h"
     extern int yylineno;
+    extern char *yytext;
     int yylex ();
     int yyerror ();
 
@@ -137,6 +138,6 @@ extern int yylineno;
 
 int yyerror (char *s) {
     fflush (stdout);
-    fprintf (stderr, "%s:%d:%d: %s\n", script_filename, yylineno, column, s);
+    fprintf (stderr, "%s:%d:%d: %s near token %s\n", script_filename, yylineno, column, s, yytext);
     return 0;
 }

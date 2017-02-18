@@ -11,7 +11,13 @@
 
 // global variables for Yacc parser
 extern FILE *yyin;
-extern int yyparse(void);
+typedef struct yy_buffer_state * YY_BUFFER_STATE;
+extern int yyparse();
+extern YY_BUFFER_STATE yy_scan_string(char * str);
+extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
+
+extern int column;
+extern int yylineno;
 
 // file name of the current script beeing read.
 // set to "-" if reading from interactive prompt
@@ -66,15 +72,11 @@ void interactive_shell() {
             break;
 
         // parse command
-        int fd[2];
-        pipe(fd);
-        yyin = fdopen(fd[1], "r");
-        printf("%d", fd[1]);
-        write(fd[0], cmd, strlen(cmd));
-        close(fd[0]);
+        YY_BUFFER_STATE buffer = yy_scan_string(cmd);
         yyparse();
-        fclose(yyin);
-        close(fd[1]);
+        yy_delete_buffer(buffer);
+        // reset position in parser
+        column = 0;
 
         free(cmd);
     }

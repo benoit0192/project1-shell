@@ -24,9 +24,15 @@ void command__append_arg(struct command *cmd, char *arg) {
         prev = current;
         current = current->next;
     }
-    prev->next = malloc(sizeof(struct arg_list));
-    prev->next->arg = arg;
-    prev->next->next = NULL;
+    if(prev == NULL) {
+        cmd->args = malloc(sizeof(struct arg_list));
+        cmd->args->arg = arg;
+        cmd->args->next = NULL;
+    } else {
+        prev->next = malloc(sizeof(struct arg_list));
+        prev->next->arg = arg;
+        prev->next->next = NULL;
+    }
 }
 
 /**

@@ -165,6 +165,7 @@ char * input(char * prompt) {
     inbuff.buff[0]   = 0;
 
     char * typing_buffer = inbuff.buff;
+    int    typing_buffer_size = inbuff.buff_size;
 
     int c = 0;
     refresh_screen(&inbuff); /* display prompt for the first time */
@@ -179,6 +180,8 @@ char * input(char * prompt) {
             // check if reallocation is necessary
             if(i+1 >= inbuff.buff_size) {
                 inbuff.buff_size += BUFF_CHUNK;
+                if(inbuff.buff == typing_buffer)
+                    typing_buffer_size = inbuff.buff_size;
                 inbuff.buff = realloc(inbuff.buff, inbuff.buff_size);
             }
             for(; i >= inbuff.pos; --i) {
@@ -199,8 +202,10 @@ char * input(char * prompt) {
         } else if(0 /* DISABLED */&& c == '\t') {
             char * tmp = history_match(&inbuff);
             if(tmp != NULL) {
-                free(inbuff.buff);
+                if(inbuff.buff != typing_buffer)
+                    free(inbuff.buff);
                 inbuff.buff = tmp;
+                inbuff.buff_size = strlen(tmp) + 1;
             }
         } else if(c == KEY_UP || c == '\t') {
             char * tmp = history_next(&inbuff);
@@ -208,6 +213,7 @@ char * input(char * prompt) {
                 if(inbuff.buff != typing_buffer)
                     free(inbuff.buff);
                 inbuff.buff = tmp;
+                inbuff.buff_size = strlen(tmp) + 1;
             }
         } else if(c == KEY_DOWN) {
             char * tmp = history_prev(&inbuff);
@@ -215,9 +221,11 @@ char * input(char * prompt) {
                 if(inbuff.buff != typing_buffer)
                     free(inbuff.buff);
                 inbuff.buff = tmp;
+                inbuff.buff_size = strlen(tmp) + 1;
             } else if(inbuff.buff != typing_buffer) {
                 free(inbuff.buff);
                 inbuff.buff = typing_buffer;
+                inbuff.buff_size = typing_buffer_size;
                 if(strlen(typing_buffer) < inbuff.pos)
                     inbuff.pos = strlen(typing_buffer);
             }
@@ -238,5 +246,7 @@ char * input(char * prompt) {
         free(inbuff.buff);
         inbuff.buff = tmp;
     }
+    if(typing_buffer != inbuff.buff)
+        free(typing_buffer);
     return inbuff.buff;
 }

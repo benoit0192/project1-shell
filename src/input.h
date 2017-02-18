@@ -6,6 +6,15 @@
 #include <unistd.h>
 #include <string.h>
 
+
+struct input_buffer {
+    char * prompt;
+    char * buff;
+    size_t buff_size;
+    int pos;
+    int old_pos;
+};
+
 #include "autocomplete.h"
 
 /**

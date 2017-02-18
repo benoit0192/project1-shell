@@ -23,6 +23,7 @@ struct termios old;
 #define DEFAULT_HISTORYFILE "/root/shell_history"
 
 
+
 /************************* MAIN FUNCTIONS *************************/
 
 // initializes shell, sets glabal variables, reads PROFILE file...
@@ -57,11 +58,27 @@ void clean_shell() {
 void interactive_shell() {
     script_filename = strdup("-");
     printf("Let's go interactive!\n");
-    char * cmd = "";
-    while(strcmp(cmd,"exit") != 0) {
+    char * cmd;
+    while(1) {
         cmd = input("\033[36m/root/ \033[32m>\033[39m ");
         history_push(cmd);
+        if(strcmp(cmd,"exit") == 0)
+            break;
+
+        // parse command
+        int fd[2];
+        pipe(fd);
+        yyin = fdopen(fd[1], "r");
+        printf("%d", fd[1]);
+        write(fd[0], cmd, strlen(cmd));
+        close(fd[0]);
+        yyparse();
+        fclose(yyin);
+        close(fd[1]);
+
+        free(cmd);
     }
+    free(cmd);
 }
 
 

@@ -11,8 +11,11 @@ SOURCES=main.c \
 	    scanner.c \
 		input.c \
 		autocomplete.c \
+		structures/statement.c \
+		structures/sequence.c \
 		structures/command.c \
-		structures/assignment.c
+		structures/assignment.c \
+		structures/group.c
 
 all:shell
 

@@ -57,6 +57,12 @@ char * history_pop() {
     return ret;
 }
 
+int line_is_empty(char * line) {
+    int i;
+    for(i = 0; line[i] == ' '; ++i) {}
+    return line[i] == 0;
+}
+
 /**
  * Adds new element to history and reset current suggestion and autocomplete parameter
  */
@@ -65,10 +71,10 @@ void history_push(char * value) {
     while(history.size >= HISTORY_SIZE) {
         free(history_pop());
     }
-    if(strcmp(value, "") != 0){
+    if(!line_is_empty(value)){
         // push new one
         struct history_elt * tmp = malloc(sizeof(struct history_elt));
-        tmp->value = value;
+        tmp->value = strdup(value);
         tmp->size = strlen(value);
         tmp->prev = NULL;
         tmp->next = history.first;
@@ -135,12 +141,13 @@ char * update_current(struct history_elt * it) {
     }
 }
 
-char * history_prev(char * start_string) {
+char * history_prev(struct input_buffer * inbuff) {
     struct history_elt * it;
     if(autocomplete_start == NULL) {
         return NULL;
     } else {
-        if(strcmp(autocomplete_start, start_string) != 0) {
+        if(inbuff->pos != autocomplete_size
+           || strncmp(autocomplete_start, inbuff->buff, inbuff->pos) != 0) {
             reset_autocomplete();
             return NULL;
         } else {
@@ -163,17 +170,20 @@ char * history_prev(char * start_string) {
     }
 }
 
-char * history_next(char * start_string) {
+char * history_next(struct input_buffer * inbuff) {
     struct history_elt * it;
     if(autocomplete_start == NULL) {
-        autocomplete_start = start_string;
-        autocomplete_size  = strlen(start_string);
+        autocomplete_start = strdup(inbuff->buff);
+        autocomplete_start[inbuff->pos] = 0;
+        autocomplete_size  = inbuff->pos;
         it = history.first;
     } else {
-        if(strcmp(autocomplete_start, start_string) != 0) {
+        if(inbuff->pos != autocomplete_size
+           || strncmp(autocomplete_start, inbuff->buff, inbuff->pos) != 0) {
             reset_autocomplete();
-            autocomplete_start = start_string;
-            autocomplete_size  = strlen(start_string);
+            autocomplete_start = strdup(inbuff->buff);
+            autocomplete_start[inbuff->pos] = 0;
+            autocomplete_size  = inbuff->pos;
             it = history.first;
         } else {
             if(history.current == NULL) return NULL;
@@ -191,10 +201,11 @@ char * history_next(char * start_string) {
 /**
  * called when user press tab. cycles through completions
  */
-char * history_match(char * start_string) {
+char * history_match(struct input_buffer * inbuff) {
     reset_autocomplete();
-    autocomplete_start = start_string;
-    autocomplete_size = strlen(autocomplete_start);
+    autocomplete_start = strdup(inbuff->buff);
+    autocomplete_start[inbuff->pos] = 0;
+    autocomplete_size  = inbuff->pos;
 
     struct history_elt * it;
     for(it = history.first;

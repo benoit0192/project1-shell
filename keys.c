@@ -92,7 +92,7 @@ int main() {
             case KEY_ERROR:
                 break;
             default:
-                printf("%c", key);
+                printf("%c (%d)\n", key, key);
         }
         fflush(stdout);
     }

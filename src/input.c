@@ -7,13 +7,6 @@
 /* initial size of input buffer. at least 2 */
 #define BUFF_CHUNK 100
 
-struct input_buffer {
-    char * prompt;
-    char * buff;
-    size_t buff_size;
-    int pos;
-    int old_pos;
-};
 
 struct input_buffer * input_buffer__new(size_t init_size) {
     struct input_buffer * b = malloc(sizeof(struct input_buffer));
@@ -175,7 +168,7 @@ char * input(char * prompt) {
 
     int c = 0;
     refresh_screen(&inbuff); /* display prompt for the first time */
-    while(c != '\n') {
+    while(c != '\n' && c != 4 /* EOT */) {
         // save cursor pos
         inbuff.old_pos = inbuff.pos;
         c = read_key();
@@ -204,26 +197,20 @@ char * input(char * prompt) {
         } else if(c == KEY_RIGHT && inbuff.buff[inbuff.pos] != 0) {
             inbuff.pos++;
         } else if(0 /* DISABLED */&& c == '\t') {
-            char * autocomplete_start = strdup(inbuff.buff);
-            autocomplete_start[inbuff.pos] = 0; // only take the substring preceding the cursor
-            char * tmp = history_match(autocomplete_start);
+            char * tmp = history_match(&inbuff);
             if(tmp != NULL) {
                 free(inbuff.buff);
                 inbuff.buff = tmp;
             }
         } else if(c == KEY_UP || c == '\t') {
-            char * autocomplete_start = strdup(inbuff.buff);
-            autocomplete_start[inbuff.pos] = 0; // only take the substring preceding the cursor
-            char * tmp = history_next(autocomplete_start);
+            char * tmp = history_next(&inbuff);
             if(tmp != NULL) {
                 if(inbuff.buff != typing_buffer)
                     free(inbuff.buff);
                 inbuff.buff = tmp;
             }
         } else if(c == KEY_DOWN) {
-            char * autocomplete_start = strdup(inbuff.buff);
-            autocomplete_start[inbuff.pos] = 0; // only take the substring preceding the cursor
-            char * tmp = history_prev(autocomplete_start);
+            char * tmp = history_prev(&inbuff);
             if(tmp != NULL) {
                 if(inbuff.buff != typing_buffer)
                     free(inbuff.buff);
@@ -231,13 +218,25 @@ char * input(char * prompt) {
             } else if(inbuff.buff != typing_buffer) {
                 free(inbuff.buff);
                 inbuff.buff = typing_buffer;
-                inbuff.pos = strlen(typing_buffer);
+                if(strlen(typing_buffer) < inbuff.pos)
+                    inbuff.pos = strlen(typing_buffer);
             }
         }
         refresh_screen(&inbuff);
     }
-    //int lines_to_skip = (strlen(inbuff.buff) + strlen(inbuff.prompt)) / SCREEN_WIDTH + 1;
-    //for(int i = 0; i < lines_to_skip; ++i)
+
     printf("\n");
+
+    if(c == 4 /* EOT */) {
+        char * tmp;
+        if(strlen(inbuff.buff) == 0)
+            tmp = strdup("exit");
+        else
+            tmp = strdup("");
+        if(typing_buffer != inbuff.buff)
+            free(typing_buffer);
+        free(inbuff.buff);
+        inbuff.buff = tmp;
+    }
     return inbuff.buff;
 }

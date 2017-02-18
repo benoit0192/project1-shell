@@ -7,9 +7,6 @@ struct command* command__new() {
     struct command* command = malloc(sizeof(struct command));
     command->prog_name = NULL;
     command->args = NULL;
-    command->background = 0;
-    command->fd_in = 0;
-    command->fd_out = 1;
     return command;
 }
 

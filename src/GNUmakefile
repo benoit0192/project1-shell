@@ -13,6 +13,7 @@ SOURCES=main.c \
 		autocomplete.c \
 		execute.c \
 		structures/statement.c \
+		structures/pipeline.c \
 		structures/sequence.c \
 		structures/command.c \
 		structures/assignment.c \

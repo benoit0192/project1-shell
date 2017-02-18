@@ -13,3 +13,7 @@ void free_script() {
     script = NULL;
     parsing_status = 0;
 }
+
+void execute_script() {
+    
+}

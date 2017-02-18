@@ -22,9 +22,6 @@ struct arg_list {
 struct command {
     char * prog_name;
     struct arg_list * args;
-    int background;
-    int fd_in;
-    int fd_out;
 };
 
 /**

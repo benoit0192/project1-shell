@@ -7,7 +7,7 @@
  * 'seq' might be NULL for the empty sequence.
  * This function returns the new first element of the sequence. unchanged if the sequence was not empty (NULL).
  */
-struct sequence * sequence__append_pipeline(struct sequence *seq, struct statement *pipe) { // TODO pipeline
+struct sequence * sequence__append_pipeline(struct sequence *seq, struct pipeline *pipe) {
     struct sequence *prev    = seq;
     struct sequence *current = seq;
     while(current != NULL) {
@@ -55,19 +55,7 @@ void sequence__set_background(struct sequence *seq, int background) {
         prev = current;
         current = current->next;
     }
-
-    switch (prev->pipeline->type) {
-        case STATEMENT_TYPE_COMMAND:
-            prev->pipeline->statement.command->background = background;
-            break;
-        case STATEMENT_TYPE_ASSIGNMENT:
-            break;
-        case STATEMENT_TYPE_GROUP:
-            prev->pipeline->statement.group->background = background;
-            break;
-        default:
-            break;
-    }
+    prev->pipeline->background = background;
 }
 
 
@@ -76,7 +64,7 @@ void sequence__free(struct sequence *seq) {
     struct sequence *next = seq;
     while(current != NULL) {
         next = current->next;
-        statement__free(current->pipeline); // TODO pipeline
+        pipeline__free(current->pipeline);
         free(current);
         current = next;
     }

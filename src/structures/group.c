@@ -5,12 +5,9 @@
 /**
  * allocate a new group structure and initialize its elements
  */
-struct group* group__new() {
+struct group* group__new(struct sequence * sequence) {
     struct group* group = malloc(sizeof(struct group));
-    group->sequence = NULL;
-    group->background = 0;
-    group->fd_in = 0;
-    group->fd_out = 1;
+    group->sequence = sequence;
     return group;
 }
 

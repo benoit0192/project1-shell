@@ -6,9 +6,6 @@
 
 struct group {
     struct sequence * sequence;
-    int background;
-    int fd_in;
-    int fd_out;
 };
 
 /**

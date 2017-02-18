@@ -2,11 +2,11 @@
 #define _SEQUENCE_H_
 
 #include <stdlib.h>
-#include "statement.h"
+#include "pipeline.h"
 
 
 struct sequence {
-    struct statement *pipeline; // TODO pipeline
+    struct pipeline *pipeline;
     struct sequence *next;
 };
 
@@ -16,7 +16,7 @@ struct sequence {
  * 'seq' might be NULL for the empty sequence.
  * This function returns the new first element of the sequence. unchanged if the sequence was not empty (NULL).
  */
-struct sequence * sequence__append_pipeline(struct sequence *seq, struct statement *pipe);
+struct sequence * sequence__append_pipeline(struct sequence *seq, struct pipeline *pipe);
 
 /**
  * appends elements of tail at the end of seq

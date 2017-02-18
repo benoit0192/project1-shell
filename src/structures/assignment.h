@@ -24,5 +24,20 @@ struct assignment* assigment__new(char *varname, char* content);
  */
  void assignment__free(struct assignment *a);
 
+ /**
+  * Execute assignment
+  * returns 0 if no error occured
+  */
+ int assignment__execute(struct assignment *a);
+
+ /**
+  * replace all occurences of $xxxx tokens by their corresponding values
+  * the string passed in argument is used as a working buffer by the function and
+  * is freed.
+  * the value of the string where variables have been replaced is returned and
+  * must be freed by the user
+  */
+ char * replace_variables(char * cmd);
+
 
 #endif // _ASSIGNMENT_H_

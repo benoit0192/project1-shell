@@ -1,6 +1,7 @@
 %{
     #include <stdio.h>
     #include "structures/sequence.h"
+    #include "structures/pipeline.h"
     #include "structures/statement.h"
     #include "structures/command.h"
     #include "structures/assignment.h"
@@ -16,13 +17,15 @@
 %token <string> WORD ASSIGNMENT_WORD
 %type <num> separator
 %type <sequence> sequence command_line command_lines script
-%type <statement> statement pipeline  // TODO: implement pipeline
+%type <statement> statement
+%type <pipeline> pipeline
 %type <command> command
 %type <assignment> assignment
 %type <group> group
 %destructor { free($$); } <string>
 %destructor { sequence__free($$); } <sequence>
 %destructor { statement__free($$); } <statement>
+%destructor { pipeline__free($$); } <pipeline>
 %destructor { command__free($$); } <command>
 %destructor { assignment__free($$); } <assignment>
 %destructor { group__free($$); } <group>
@@ -31,6 +34,7 @@
   char *string;
   int num;
   struct statement *statement;
+  struct pipeline *pipeline;
   struct sequence *sequence;
   struct command *command;
   struct assignment *assignment;
@@ -75,8 +79,12 @@ sequence
 ;
 
 pipeline
-:              statement { $$ = $1; }
-| pipeline '|' statement { $$ = $1; } // TODO pipeline
+:              statement {
+    $$ = pipeline__append_statement(NULL, $1);
+}
+| pipeline '|' statement {
+    $$ = pipeline__append_statement($1, $3);
+}
 ;
 
 statement
@@ -118,7 +126,7 @@ command
 ;
 
 group
-: '(' sequence ')' {
+: '(' command_line ')' {
     $$ = group__new($2);
 }
 ;
@@ -150,7 +158,7 @@ extern int yylineno;
 
 int yyerror (char *s) {
     fflush (stdout);
-    fprintf (stderr, "%s:%d:%d: %s near token %s\n", script_filename, yylineno, column, s, yytext);
+    fprintf (stderr, "%s:%d:%d: %s near unexpected token \"%s\"\n", script_filename, yylineno, column, s, yytext);
     parsing_status = 1;
     return 0;
 }

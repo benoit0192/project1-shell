@@ -17,9 +17,9 @@ L[a-zA-Z_]
 ";"				      	{ count(); return(';'); }
 "("				      	{ count(); return('('); }
 ")"				      	{ count(); return(')'); }
-(\\.|[^"# \n\|&=;\(\)])+	{ count(); yylval.string = strdup(yytext); /* replace env vars */ return(WORD); }
-\"(\\.|[^\"])*\"     	{ count(); yylval.string = strdup(yytext+1); yylval.string[strlen(yytext)-2] = 0; /* replace env vars */ return(WORD); }
-{L}({L}|{D})*=  	  	{ count(); yylval.string = strdup(yytext); yylval.string[strlen(yytext)-1] = 0; return(ASSIGNMENT_WORD); }
+(\\.|[^"# \n\|&=;\(\)])+	{ count(); yylval.string = strdup(yytext); return(WORD); }
+\"(\\.|[^\"])*\"     	{ count(); yylval.string = strdup(yytext+1); yylval.string[strlen(yytext)-2] = 0; return(WORD); }
+{L}({L}|{D})*=  	  	{ count(); yylval.string = strdup(yytext); yylval.string[strlen(yytext)-1] = 0;	return(ASSIGNMENT_WORD); }
 .	 				  	{ /* ignore bad characters */ }
 
 %%

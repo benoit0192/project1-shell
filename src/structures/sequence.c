@@ -69,3 +69,14 @@ void sequence__free(struct sequence *seq) {
         current = next;
     }
 }
+
+int sequence__execute(struct sequence *seq) {
+
+    struct sequence *current = seq;
+    while(current != NULL) {
+        pipeline__execute(current->pipeline);
+        current = current->next;
+    }
+
+    return 0;
+}

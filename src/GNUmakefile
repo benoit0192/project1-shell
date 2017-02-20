@@ -11,13 +11,13 @@ SOURCES=main.c \
 	    scanner.c \
 		input.c \
 		autocomplete.c \
-		execute.c \
 		structures/statement.c \
 		structures/pipeline.c \
 		structures/sequence.c \
 		structures/command.c \
 		structures/assignment.c \
-		structures/group.c
+		structures/group.c \
+		builtin/cd.c
 
 all:shell
 

@@ -39,5 +39,7 @@ struct assignment* assigment__new(char *varname, char* content);
   */
  char * replace_variables(char * cmd);
 
+char * environment_variable__get(char *var_name);
+
 
 #endif // _ASSIGNMENT_H_

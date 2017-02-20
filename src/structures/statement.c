@@ -18,3 +18,23 @@ void statement__free(struct statement *st) {
     }
     free(st);
 }
+
+
+int statement__execute(struct statement *st) {
+    switch(st->type) {
+        case STATEMENT_TYPE_COMMAND:
+            command__execute(st->statement.command);
+            return 0;
+            break;
+        case STATEMENT_TYPE_ASSIGNMENT:
+            return assignment__execute(st->statement.assignment);
+            break;
+        case STATEMENT_TYPE_GROUP:
+            return 0;//group__execute(st->statement.group);
+            break;
+        default:
+            return 1;
+            break;
+    }
+
+}

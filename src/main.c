@@ -6,7 +6,7 @@
 
 #include "input.h"
 #include "autocomplete.h"
-#include "execute.h"
+#include "structures/sequence.h"
 
 /************************* GLOBAL VARIABLES *************************/
 
@@ -28,11 +28,23 @@ char *script_filename;
 // old terminal settings
 struct termios old;
 
+// the parsed script to execute. set by the starting rule of yyparse()
+struct sequence *script = NULL;
+
+// the exit status of the parser. 0=no error ; 1=error
+int parsing_status = 0;
+
 #define DEFAULT_HISTORYFILE "/root/shell_history"
 
 
 
 /************************* MAIN FUNCTIONS *************************/
+
+void free_script() {
+    sequence__free(script);
+    script = NULL;
+    parsing_status = 0;
+}
 
 // initializes shell, sets glabal variables, reads PROFILE file...
 void init_shell() {
@@ -83,7 +95,10 @@ void interactive_shell() {
         column = 0;
 
         // execute command
-        // some_magic();
+        int ret;
+        if(script != NULL && parsing_status == 0) {
+            ret = sequence__execute(script);
+        }
         free_script();
 
         free(cmd);

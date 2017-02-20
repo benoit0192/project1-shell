@@ -30,6 +30,6 @@ void sequence__free(struct sequence *seq);
  */
 void sequence__set_background(struct sequence *seq, int background);
 
-
+int sequence__execute(struct sequence *seq);
 
 #endif // _SEQUENCE_H_

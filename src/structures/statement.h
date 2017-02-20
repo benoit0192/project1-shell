@@ -27,5 +27,7 @@ struct statement {
 void statement__free(struct statement *st);
 
 
+int statement__execute(struct statement *st);
+
 
 #endif // _STATEMENT_H_

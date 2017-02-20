@@ -1,8 +1,14 @@
 #ifndef _COMMAND_H_
 #define _COMMAND_H_
 
+#define _GNU_SOURCE
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
 
+#include "../builtin/cd.h"
 
 /*---- Command ------------------------------------------------------------
 *   This structure is used to represent a simple command.
@@ -39,5 +45,8 @@ void command__append_arg(struct command *cmd, char *arg);
  * Frees a command structure and all its contents
  */
 void command__free(struct command *cmd);
+
+
+void command__execute(struct command *cmd);
 
 #endif // _COMMAND_H_

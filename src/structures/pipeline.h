@@ -1,6 +1,11 @@
 #ifndef _PIPELINE_H_
 #define _PIPELINE_H_
 
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdio.h>
+
 #include "statement.h"
 
 
@@ -19,6 +24,8 @@ struct pipeline {
 struct pipeline * pipeline__append_statement(struct pipeline *pipe, struct statement *st);
 
 void pipeline__free(struct pipeline *p);
+
+int pipeline__execute(struct pipeline *pipeline);
 
 
 #endif // _PIPELINE_H_

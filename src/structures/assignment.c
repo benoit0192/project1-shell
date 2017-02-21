@@ -44,6 +44,18 @@ char *environment_variable__get(char *var_name) {
     }
 }
 
+void environment_variable__free() {
+    struct environment_variable *it = vars;
+    struct environment_variable *next;
+    while(it != NULL) {
+        next = it->next;
+        free(it->var_name);
+        free(it->var_value);
+        free(it);
+        it = next;
+    }
+}
+
 /**
  * replace all occurences of $xxxx tokens by their corresponding values
  * the string passed in argument is used as a working buffer by the function and

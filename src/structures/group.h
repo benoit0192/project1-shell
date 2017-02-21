@@ -19,4 +19,6 @@ struct group* group__new(struct sequence * sequence);
  */
 void group__free(struct group * g);
 
+int group__execute(struct group * g);
+
 #endif // _GROUP_H_

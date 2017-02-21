@@ -47,12 +47,29 @@ void command__free(struct command *cmd) {
     free(cmd);
 }
 
-void command__execute(struct command *cmd) {
+int command__execute(struct command *cmd) {
+    // execute builtins
+    if(strcmp(cmd->prog_name, "cd") == 0) {
+        if(cmd->args == NULL)
+            cd(NULL);
+        else
+            cd(cmd->args->arg);
+        return 0;
+    }
+
+    int cpid = fork();
+    if(cpid > 0) {
+        return cpid;
+    } else if(cpid < 0) {
+        perror("Can't fork: ");
+        return cpid;
+    }
+
     char * prog_name = replace_variables(strdup(cmd->prog_name));
     char * path = environment_variable__get("PATH");
     char *path_current = path;
     char *absolute = NULL;
-    if(prog_name[0] != '/') {
+    if(prog_name[0] != '/' && prog_name[0] != '.') {
         char * cwd = getcwd(NULL, 0);
         if(cwd == NULL) {
             perror("Can't get current working directory: ");
@@ -63,31 +80,27 @@ void command__execute(struct command *cmd) {
             _exit(1);
         }
         int i = 0;
-        printf("%s\n", absolute);
+        int stop = 0;
         while(access(absolute, X_OK) == -1) {
+            if(stop) {
+                stop = 2;
+                break;
+            }
             while(path[i] != 0 && path[i] != ':') {
                 ++i;
             }
             if(path[i] == 0)
-                break;
+                stop = 1;
             path[i] = 0;
             free(absolute);
             if(asprintf(&absolute, "%s/%s", path_current, prog_name) == -1) {
                 fprintf(stderr, "Can't build absolute path\n");
                 _exit(1);
             }
-            printf("%s\n", absolute);
             ++i;
             path_current= &path[i];
         }
-        free(absolute);
-        if(asprintf(&absolute, "%s/%s", path_current, prog_name) == -1) {
-            fprintf(stderr, "Can't build absolute path\n");
-            _exit(1);
-        }
-        printf("%s\n", absolute);
-        if(access(absolute, X_OK) == -1) {
-            free(absolute);
+        if(stop == 2) {
             fprintf(stderr, "%s: command not found\n", prog_name);
             _exit(1);
         }
@@ -107,7 +120,7 @@ void command__execute(struct command *cmd) {
     it = cmd->args;
     n = 1;
     while(it != NULL) {
-        args[n] = it->arg;
+        args[n] = replace_variables(strdup(it->arg));
         ++n;
         it = it->next;
     }

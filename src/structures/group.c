@@ -19,3 +19,16 @@ void group__free(struct group * g) {
     sequence__free(g->sequence);
     free(g);
 }
+
+
+int group__execute(struct group * g) {
+    int cpid = fork();
+    if(cpid == 0) {
+        return sequence__execute(g->sequence);
+    } else if(cpid < 0) {
+        perror("Can't fork");
+        return 1;
+    } else {
+        return cpid;
+    }
+}

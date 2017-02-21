@@ -47,6 +47,6 @@ void command__append_arg(struct command *cmd, char *arg);
 void command__free(struct command *cmd);
 
 
-void command__execute(struct command *cmd);
+int command__execute(struct command *cmd);
 
 #endif // _COMMAND_H_

@@ -41,5 +41,6 @@ struct assignment* assigment__new(char *varname, char* content);
 
 char * environment_variable__get(char *var_name);
 
+void environment_variable__free();
 
 #endif // _ASSIGNMENT_H_

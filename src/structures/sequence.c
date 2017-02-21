@@ -71,12 +71,12 @@ void sequence__free(struct sequence *seq) {
 }
 
 int sequence__execute(struct sequence *seq) {
-
+    int ret;
     struct sequence *current = seq;
     while(current != NULL) {
-        pipeline__execute(current->pipeline);
+        ret = pipeline__execute(current->pipeline);
         current = current->next;
     }
 
-    return 0;
+    return ret;
 }

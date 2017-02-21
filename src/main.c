@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <termios.h>
@@ -34,8 +35,13 @@ struct sequence *script = NULL;
 // the exit status of the parser. 0=no error ; 1=error
 int parsing_status = 0;
 
+#ifdef UBU // DEBUG on ubuntu
+#define DEFAULT_HISTORYFILE "/home/pyvain/shell_history"
+#define DEFAULT_PROFILEFILE "/home/pyvain/shell_profile"
+#else // MINIX
 #define DEFAULT_HISTORYFILE "/root/shell_history"
-
+#define DEFAULT_PROFILEFILE "/root/shell_profile"
+#endif
 
 
 /************************* MAIN FUNCTIONS *************************/
@@ -44,6 +50,29 @@ void free_script() {
     sequence__free(script);
     script = NULL;
     parsing_status = 0;
+}
+
+// execute a shell script
+void exec_script(char *filename) {
+    script_filename = strdup(filename);
+    yyin = fopen (filename, "r");
+    if(!yyin) {
+        fprintf(stderr, "Could not open %s\n", filename);
+        perror("Error cause: ");
+        return;
+    }
+    yyparse();
+    free(script_filename);
+    fclose(yyin);
+    // reset position in parser
+    column = 0;
+
+    // execute command
+    int ret;
+    if(script != NULL && parsing_status == 0) {
+        ret = sequence__execute(script);
+    }
+    free_script();
 }
 
 // initializes shell, sets glabal variables, reads PROFILE file...
@@ -58,6 +87,8 @@ void init_shell() {
     tcsetattr(STDIN_FILENO,TCSANOW,&new); /* push the settings on the terminal */
 
     history_load(DEFAULT_HISTORYFILE);
+
+    exec_script(DEFAULT_PROFILEFILE);
 }
 
 
@@ -66,10 +97,11 @@ void init_shell() {
 void clean_shell() {
     free(script_filename);
 
-    /* ok, restore initial behavior */
+    // restore initial behavior
     tcsetattr(STDIN_FILENO,TCSANOW,&old);
 
     history_save(DEFAULT_HISTORYFILE);
+    environment_variable__free();
 
     yylex_destroy();
 }
@@ -79,10 +111,17 @@ void clean_shell() {
 // starts an interactive sheel
 void interactive_shell() {
     script_filename = strdup("-");
-    printf("Let's go interactive!\n");
+    char *home=environment_variable__get("HOME");
+    cd(home);
+    free(home);
     char * cmd;
     while(1) {
-        cmd = input("\033[36m/root/ \033[32m>\033[39m ");
+        char *prompt;
+        char *cwd = getcwd(NULL, 0);
+        asprintf(&prompt, "\033[36m%s\033[32m >\033[39m ", cwd);
+        free(cwd);
+        cmd = input(prompt);
+        free(prompt);
         history_push(cmd);
         if(strcmp(cmd,"exit") == 0)
             break;
@@ -107,19 +146,6 @@ void interactive_shell() {
 }
 
 
-
-// execute a shell script
-void exec_script(char *filename) {
-    script_filename = strdup(filename);
-    yyin = fopen (filename, "r");
-	if(!yyin) {
-	    fprintf(stderr, "Could not open %s\n", filename);
-        perror("Error cause: ");
-	    return;
-	}
-    yyparse();
-    fclose(yyin);
-}
 
 
 

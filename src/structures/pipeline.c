@@ -16,11 +16,13 @@ struct pipeline * pipeline__append_statement(struct pipeline *pipe, struct state
     if(prev == NULL) {
         prev = malloc(sizeof(struct pipeline));
         prev->statement = st;
+        prev->background = 0;
         prev->next = NULL;
         return prev;
     } else {
         prev->next = malloc(sizeof(struct pipeline));
         prev->next->statement = st;
+        prev->background = 0;
         prev->next->next = NULL;
         return pipe;
     }
@@ -70,12 +72,16 @@ int pipeline__execute(struct pipeline *pipeline) {
         dup2(fdout, STDOUT_FILENO);
         close(fdout);
 
-        // check builtins 
+        // check builtins
 
-        cpid = fork();
-        if(cpid == 0) {
+        //cpid = fork();
+        //if(cpid == 0) {
             // child
-            _exit(statement__execute(current->statement));
+        //    _exit(statement__execute(current->statement));
+        //}
+        if( (cpid = statement__execute(current->statement)) < 0) {
+            // error
+            // what do we do?
         }
     }
 
@@ -85,14 +91,15 @@ int pipeline__execute(struct pipeline *pipeline) {
     close(in);
     close(out);
 
-    if(!pipeline->background) {
+    if(!pipeline->background && cpid > 0) {
         // wait for last command
         int status;
         waitpid(cpid, &status, 0);
-        if(WIFEXITED(status))
+        if(WIFEXITED(status)) {
             return WEXITSTATUS(status);
-        else
+        } else {
             return 1;
+        }
     }
     return 0;
 }

@@ -98,15 +98,19 @@ int mystrlen(char *s) {
 /**
  *
  */
+volatile int rewind_cursor = 1;
 void refresh_screen(struct input_buffer * inbuff) {
     int prompt_length = mystrlen(inbuff->prompt);
     /* move to begining of prompt */
-    int old_line = (prompt_length + inbuff->old_pos) / SCREEN_WIDTH;
-    int old_col  = (prompt_length + inbuff->old_pos) % SCREEN_WIDTH;
-    if(old_col > 0)
-        printf("\033[%dD", old_col); /* move old_col times to the left */
-    if(old_line > 0)
-        printf("\033[%dA", old_line); /* move cursor by old_lines up */
+    if(rewind_cursor) {
+        int old_line = (prompt_length + inbuff->old_pos) / SCREEN_WIDTH;
+        int old_col  = (prompt_length + inbuff->old_pos) % SCREEN_WIDTH;
+        if(old_col > 0)
+            printf("\033[%dD", old_col); /* move old_col times to the left */
+        if(old_line > 0)
+            printf("\033[%dA", old_line); /* move cursor by old_lines up */
+    }
+    rewind_cursor = 1;
 
     /* rewrite buffer */
     printf("%s%s", inbuff->prompt, inbuff->buff);
@@ -180,9 +184,14 @@ char * input(char * prompt) {
             // check if reallocation is necessary
             if(i+1 >= inbuff.buff_size) {
                 inbuff.buff_size += BUFF_CHUNK;
-                if(inbuff.buff == typing_buffer)
+                int copy_typing = 0;
+                if(inbuff.buff == typing_buffer) {
+                    copy_typing = 1;
                     typing_buffer_size = inbuff.buff_size;
+                }
                 inbuff.buff = realloc(inbuff.buff, inbuff.buff_size);
+                if(copy_typing)
+                    typing_buffer = inbuff.buff;
             }
             for(; i >= inbuff.pos; --i) {
                 inbuff.buff[i+1] = inbuff.buff[i];

@@ -3,17 +3,19 @@
 
 //getcwd(NULL, 0);
 
-int cd(char * path) {
+int cd(struct arg_list *args) {
     int ret;
-    if(path == NULL) {
+    if(args == NULL) {
         // no argument was passed to cd, so go $HOME
         char * home = environment_variable__get("HOME");
-        ret = cd(home);
+        ret = chdir(home);
+        if(ret)
+            fprintf(stderr, "Can't cd to %s: %s\n", home, strerror(errno));
         free(home);
-        return ret;
+    } else {
+        ret = chdir(args->arg);
+        if(ret)
+            fprintf(stderr, "Can't cd to %s: %s\n", args->arg, strerror(errno));
     }
-    ret = chdir(path);
-    if(ret)
-        fprintf(stderr, "Can't cd to %s\n", path);
     return ret;
 }

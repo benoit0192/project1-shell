@@ -81,7 +81,8 @@ int pipeline__execute(struct pipeline *pipeline) {
         //}
         if( (cpid = statement__execute(current->statement)) < 0) {
             // error
-            // what do we do?
+            fprintf(stderr, "Can't execute command\n");
+            return 1;
         }
     }
 
@@ -94,7 +95,9 @@ int pipeline__execute(struct pipeline *pipeline) {
     if(!pipeline->background && cpid > 0) {
         // wait for last command
         int status;
+        alarm(5);
         waitpid(cpid, &status, 0);
+        alarm(0);
         if(WIFEXITED(status)) {
             return WEXITSTATUS(status);
         } else {

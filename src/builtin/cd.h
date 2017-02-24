@@ -3,10 +3,13 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 #include "../structures/assignment.h"
+#include "../structures/command.h"
 
-int cd(char * path);
+int cd(struct arg_list *args);
 
 
 

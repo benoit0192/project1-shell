@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <termios.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
+#include <errno.h>
 
 #include "input.h"
 #include "autocomplete.h"
@@ -26,6 +29,9 @@ extern int yylineno;
 // set to "-" if reading from interactive prompt
 char *script_filename;
 
+// main process PID
+pid_t main_pid;
+
 // old terminal settings
 struct termios old;
 
@@ -35,13 +41,10 @@ struct sequence *script = NULL;
 // the exit status of the parser. 0=no error ; 1=error
 int parsing_status = 0;
 
-#ifdef UBU // DEBUG on ubuntu
-#define DEFAULT_HISTORYFILE "/home/pyvain/shell_history"
-#define DEFAULT_PROFILEFILE "/home/pyvain/shell_profile"
-#else // MINIX
+extern volatile int rewind_cursor;
+
 #define DEFAULT_HISTORYFILE "/root/shell_history"
 #define DEFAULT_PROFILEFILE "/root/shell_profile"
-#endif
 
 
 /************************* MAIN FUNCTIONS *************************/
@@ -57,8 +60,8 @@ void exec_script(char *filename) {
     script_filename = strdup(filename);
     yyin = fopen (filename, "r");
     if(!yyin) {
-        fprintf(stderr, "Could not open %s\n", filename);
-        perror("Error cause: ");
+        fprintf(stderr, "Could not open %s: %s\n", filename, strerror(errno));
+        free(script_filename);
         return;
     }
     yyparse();
@@ -75,6 +78,22 @@ void exec_script(char *filename) {
     free_script();
 }
 
+void signalHandlerInt(int sig) {
+    printf("\nAll child processes were killed\n");
+    write(STDIN_FILENO, "\0", 1); // refresh prompt
+    rewind_cursor = 0;
+    //fprintf(stdin, "\033[B");
+    //fflush(stdin);
+}
+
+//void signalHandlerAlarm(int sig);
+void signalHandlerAlarm(int sig) {
+    signal(SIGALRM, SIG_IGN);
+    if(getpid() == main_pid)
+        printf("\033[34mINFO\033[39m A command is long to execute. You can press Ctrl-C to kill all child processes.\n");
+    signal(SIGALRM, signalHandlerAlarm);
+}
+
 // initializes shell, sets glabal variables, reads PROFILE file...
 void init_shell() {
     script_filename = NULL;
@@ -86,23 +105,23 @@ void init_shell() {
     new.c_lflag &=(~ICANON & ~ECHO);      /* modify the current settings */
     tcsetattr(STDIN_FILENO,TCSANOW,&new); /* push the settings on the terminal */
 
+    main_pid = getpid();
+    signal(SIGALRM, signalHandlerAlarm);
+
     history_load(DEFAULT_HISTORYFILE);
 
     exec_script(DEFAULT_PROFILEFILE);
 }
 
-
-
 // unallocate shell ressources before exiting
 void clean_shell() {
+    if(getpid() == main_pid) {
+        tcsetattr(STDIN_FILENO,TCSANOW,&old); // restore initial behavior
+        history_save(DEFAULT_HISTORYFILE);
+    }
     free(script_filename);
-
-    // restore initial behavior
-    tcsetattr(STDIN_FILENO,TCSANOW,&old);
-
-    history_save(DEFAULT_HISTORYFILE);
     environment_variable__free();
-
+    free_script();
     yylex_destroy();
 }
 
@@ -111,9 +130,11 @@ void clean_shell() {
 // starts an interactive sheel
 void interactive_shell() {
     script_filename = strdup("-");
-    char *home=environment_variable__get("HOME");
-    cd(home);
-    free(home);
+    struct arg_list home;
+    home.arg = environment_variable__get("HOME");
+    home.next = NULL;
+    cd(&home);
+    free(home.arg);
     char * cmd;
     while(1) {
         char *prompt;
@@ -123,8 +144,6 @@ void interactive_shell() {
         cmd = input(prompt);
         free(prompt);
         history_push(cmd);
-        if(strcmp(cmd,"exit") == 0)
-            break;
 
         // parse command
         YY_BUFFER_STATE buffer = yy_scan_string(cmd);
@@ -132,6 +151,7 @@ void interactive_shell() {
         yy_delete_buffer(buffer);
         // reset position in parser
         column = 0;
+        free(cmd);
 
         // execute command
         int ret;
@@ -140,7 +160,6 @@ void interactive_shell() {
         }
         free_script();
 
-        free(cmd);
     }
     free(cmd);
 }
@@ -158,6 +177,7 @@ int main (int argc, char *argv[]) {
     } else {
         // no script files are passed in argument
         // let's start an interactive shell
+        signal(SIGINT, signalHandlerInt);
         interactive_shell();
     }
     clean_shell();

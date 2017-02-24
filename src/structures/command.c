@@ -47,25 +47,39 @@ void command__free(struct command *cmd) {
     free(cmd);
 }
 
+int is_regular_file(const char *path)
+{
+    struct stat path_stat;
+    stat(path, &path_stat);
+    return S_ISREG(path_stat.st_mode);
+}
+
+/**
+ *
+ */
 int command__execute(struct command *cmd) {
+    char * prog_name = replace_variables(strdup(cmd->prog_name));
+
     // execute builtins
     if(strcmp(cmd->prog_name, "cd") == 0) {
-        if(cmd->args == NULL)
-            cd(NULL);
-        else
-            cd(cmd->args->arg);
+        free(prog_name);
+        return cd(cmd->args);
+    } else if(strcmp(cmd->prog_name, "exit") == 0) {
+        free(prog_name);
+        builtin_exit(cmd->args);
         return 0;
     }
 
     int cpid = fork();
     if(cpid > 0) {
+        free(prog_name);
         return cpid;
     } else if(cpid < 0) {
+        free(prog_name);
         perror("Can't fork: ");
         return cpid;
     }
 
-    char * prog_name = replace_variables(strdup(cmd->prog_name));
     char * path = environment_variable__get("PATH");
     char *path_current = path;
     char *absolute = NULL;
@@ -79,9 +93,10 @@ int command__execute(struct command *cmd) {
             fprintf(stderr, "Can't build absolute path\n");
             _exit(1);
         }
+        free(cwd);
         int i = 0;
         int stop = 0;
-        while(access(absolute, X_OK) == -1) {
+        while(!is_regular_file(absolute) || access(absolute, X_OK) == -1) {
             if(stop) {
                 stop = 2;
                 break;
@@ -106,6 +121,10 @@ int command__execute(struct command *cmd) {
         }
     } else {
         absolute = prog_name;
+        if(!is_regular_file(absolute) || access(absolute, X_OK) == -1) {
+            fprintf(stderr, "%s: command not found\n", prog_name);
+            _exit(1);
+        }
     }
 
     // count number of arguments

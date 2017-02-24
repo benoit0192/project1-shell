@@ -17,7 +17,8 @@ SOURCES=main.c \
 		structures/command.c \
 		structures/assignment.c \
 		structures/group.c \
-		builtin/cd.c
+		builtin/cd.c \
+		builtin/exit.c
 
 all:shell
 
@@ -30,8 +31,5 @@ grammar.c:grammar.y
 scanner.c:scanner.l
 	$(LEX) -o $@ $^
 
-tools/errno:tools/errno.c
-	$(CC) $(CFLAGS) -o $@ $^
-
 clean:
-	rm -f grammar.c grammar.tab.h scanner.c shell tools/errno
+	rm -f grammar.c grammar.tab.h scanner.c shell

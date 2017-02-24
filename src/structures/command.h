@@ -3,12 +3,13 @@
 
 #define _GNU_SOURCE
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 
-#include "../builtin/cd.h"
 
 /*---- Command ------------------------------------------------------------
 *   This structure is used to represent a simple command.
@@ -29,6 +30,9 @@ struct command {
     char * prog_name;
     struct arg_list * args;
 };
+
+#include "../builtin/cd.h"
+#include "../builtin/exit.h"
 
 /**
  * allocate a new command structure and initialize its elements

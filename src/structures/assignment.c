@@ -75,7 +75,8 @@ char * replace_variables(char * cmd) {
             cmd_i++;
             while(   ('0' <= cmd[cmd_i] && cmd[cmd_i] <= '9')     // 0-9
                   || ('A' <= cmd[cmd_i] && cmd[cmd_i] <= 'Z')     // A-Z
-                  || ('a' <= cmd[cmd_i] && cmd[cmd_i] <= 'z') ) { // a-z
+                  || ('a' <= cmd[cmd_i] && cmd[cmd_i] <= 'z')
+                  || cmd[cmd_i] == '_' ) { // a-z
                 // we use cmd buffer to store var_name
                 cmd[cmd_i-1] = cmd[cmd_i];
                 cmd_i++;

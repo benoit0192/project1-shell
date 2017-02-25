@@ -23,7 +23,9 @@ void environment_variable__add(char *var_name, char* var_value) {
         vars = new;
     } else {
         // var found. edit value
+        free(it->var_value);
         it->var_value = var_value;
+        free(var_name);
     }
 }
 

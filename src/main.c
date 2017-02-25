@@ -62,10 +62,10 @@ void exec_script(char *filename) {
     if(!yyin) {
         fprintf(stderr, "Could not open %s: %s\n", filename, strerror(errno));
         free(script_filename);
+        script_filename = NULL;
         return;
     }
     yyparse();
-    free(script_filename);
     fclose(yyin);
     // reset position in parser
     column = 0;
@@ -76,6 +76,8 @@ void exec_script(char *filename) {
         ret = sequence__execute(script);
     }
     free_script();
+    free(script_filename);
+    script_filename = NULL;
 }
 
 void signalHandlerInt(int sig) {
@@ -159,9 +161,7 @@ void interactive_shell() {
             ret = sequence__execute(script);
         }
         free_script();
-
     }
-    free(cmd);
 }
 
 

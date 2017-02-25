@@ -31,5 +31,8 @@ grammar.c:grammar.y
 scanner.c:scanner.l
 	$(LEX) -o $@ $^
 
+test: shell
+	../tst/run-tests.py
+
 clean:
 	rm -f grammar.c grammar.tab.h scanner.c shell

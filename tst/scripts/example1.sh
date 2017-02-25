@@ -4,7 +4,7 @@
 # it can have comments like this
 
 # and it can run commands, one per line
-ls
+pwd
 
 uname
 

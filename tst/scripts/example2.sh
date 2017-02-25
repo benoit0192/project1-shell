@@ -5,4 +5,4 @@
 uname -a
 
 # or multiple arguments
-ls -l -a /
+echo Hello! How are you?

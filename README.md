@@ -29,9 +29,13 @@ The shell uses a profile file, has a customizable `$PATH` and `$HOME`, has an hi
 
 ## How to build the shell
 
+The project uses bison and lex to generate the parser. Make sure that these tools are installed on your Minix: `pkgin install lex bison`.
+
+It is built with `clang` and `ld`. Make sure they are installed on your Minix: `pkgin install clang binutils`.
+
 The source code is provided with a GNU makefile named `GNUmakefile` that you can run with the `gmake` command. The default `make` command in Minix 3 is BSD make, and is not totally compatible with GNU make syntax. You can install `gmake` with `pkgin install gmake`.
 
-In order to create the binary `src/shell`, simply run `gmake` in the `src` directory.
+In order to create the binary `src/shell`, simply run `gmake` from the root folder of the repository.
 
 | <span style="font-weight:normal">**Note:** `clang` generates an error if you try to build the project in a VirtualBox shared folder. If you need to do so, first copy `src/`'s contents to another directory.</span> |
 | :------ |
@@ -40,7 +44,7 @@ In order to create the binary `src/shell`, simply run `gmake` in the `src` direc
 
 You first need to build the shell following "How to build the shell" instructions.
 
-You can then run `src/shell` from Ash.
+You can then run `./src/shell` from Ash.
 
 The shell program uses the file `/root/shell_profile` which is an initialization script that you can edit/create to customize the shell. Here is a sample content for this file:
 ```sh
@@ -55,6 +59,6 @@ The shell saves the command history to the file `/root/shell_history`. If the fi
 
 ## How to run tests
 
-The shell program has the ability to run script files passed in command line argument. The folder `tst/` contains a collection of test scripts covering all the aspects of our scripting langage syntax (specified in the project report). The file `run-tests.sh` runs all of them, compares their output to the expected ones and displays a summary.
+You can run automated tests from the root folder of the directory with the command `gmake test`. You need to install Python 2.7 `pkgin install python27` first.
 
 UI tests are performed manually.

@@ -2,7 +2,7 @@
 
 
 /**
- * append the statement 'st' at the end of the pipeline list 'pipe'
+ * Append the statement 'st' at the end of the pipeline list 'pipe'
  * 'pipe' might be NULL for the empty list.
  * This function returns the new first element of the pipeline. unchanged if the list was not empty (NULL).
  */
@@ -28,7 +28,9 @@ struct pipeline * pipeline__append_statement(struct pipeline *pipe, struct state
     }
 }
 
-
+/**
+ * Free a pipeline structure and all its contents
+ */
 void pipeline__free(struct pipeline *p) {
     struct pipeline *current = p;
     struct pipeline *next = p;
@@ -40,6 +42,11 @@ void pipeline__free(struct pipeline *p) {
     }
 }
 
+/**
+ * Execute a pipeline by executing each statement piped into another one
+ * If a pipeline is not executed in background, set the alarm for 5s if enabled then return the status of the last pipeline statement.
+ * Otherwise return 0.
+ */
 int pipeline__execute(struct pipeline *pipeline) {
     // save default input and output files
     int in = dup(STDIN_FILENO);
@@ -72,13 +79,6 @@ int pipeline__execute(struct pipeline *pipeline) {
         dup2(fdout, STDOUT_FILENO);
         close(fdout);
 
-        // check builtins
-
-        //cpid = fork();
-        //if(cpid == 0) {
-            // child
-        //    _exit(statement__execute(current->statement));
-        //}
         if( (cpid = statement__execute(current->statement)) < 0) {
             // error
             fprintf(stderr, "Can't execute command\n");

@@ -3,7 +3,7 @@
 
 
 /**
- * allocate a new group structure and initialize its elements
+ * Allocate a new group structure and initialize its elements
  */
 struct group* group__new(struct sequence * sequence) {
     struct group* group = malloc(sizeof(struct group));
@@ -13,14 +13,17 @@ struct group* group__new(struct sequence * sequence) {
 
 
 /**
- * Frees a group structure and all its contents
+ * Free a group structure and all its contents
  */
 void group__free(struct group * g) {
     sequence__free(g->sequence);
     free(g);
 }
 
-
+/**
+ * Execute a group by executing the sequence contained in the group
+ * Return the child process ID of the sequence or '1' if an error occured when forking
+ */
 int group__execute(struct group * g) {
     int cpid = fork();
     if(cpid == 0) {

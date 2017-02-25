@@ -2,15 +2,20 @@
 
 #define REPL_BUFF_CHUNK 100
 
-// the list of all defined variables
+// List of all defined environment variables in a linked list
 struct environment_variable {
     char *var_name;
     char *var_value;
     struct environment_variable *next;
 };
 
+// Declare the structure that will contain the environment variables
 struct environment_variable *vars = NULL;
 
+/**
+ * Add a variable at the end of the linked list if it does not exist yet
+ * If it does, simply overwrite the content of the existing content variable by the new one 
+ */
 void environment_variable__add(char *var_name, char* var_value) {
     struct environment_variable *it;
     for(it = vars; it != NULL && strcmp(it->var_name, var_name) != 0; it = it->next) {}
@@ -30,7 +35,7 @@ void environment_variable__add(char *var_name, char* var_value) {
 }
 
 /**
- * returns the value of variable var_name.
+ * Return the value of variable var_name.
  * if the variable does not exist, an empty string is returned
  * result must be freed by the user
  */
@@ -46,6 +51,9 @@ char *environment_variable__get(char *var_name) {
     }
 }
 
+/**
+ * Free an environment variable structure and all its contents
+ */
 void environment_variable__free() {
     struct environment_variable *it = vars;
     struct environment_variable *next;
@@ -59,7 +67,7 @@ void environment_variable__free() {
 }
 
 /**
- * replace all occurences of $xxxx tokens by their corresponding values
+ * Replace all occurences of $xxxx tokens by their corresponding values
  * the string passed in argument is used as a working buffer by the function and
  * is freed.
  * the value of the string where variables have been replaced is returned and
@@ -112,7 +120,7 @@ char * replace_variables(char * cmd) {
 }
 
 /**
- * Allocates a new assignment structure and sets its fields
+ * Allocate a new assignment structure and set its fields to the values passed in arguments before returning it.
  */
 struct assignment* assigment__new(char *varname, char* content) {
     struct assignment* a = malloc(sizeof(struct assignment));
@@ -122,8 +130,8 @@ struct assignment* assigment__new(char *varname, char* content) {
 }
 
 /**
- * Execute assignment
- * returns 0 if no error occured
+ * Execute an assignment
+ * Return 0 if no error occured
  */
 int assignment__execute(struct assignment *a) {
     environment_variable__add(strdup(a->varname), replace_variables(strdup(a->content)));
@@ -132,7 +140,7 @@ int assignment__execute(struct assignment *a) {
 
 
 /**
- * Frees an assignment structure and all its fields
+ * Free an assignment structure and all its fields
  */
  void assignment__free(struct assignment *a) {
      free(a->varname);

@@ -3,7 +3,7 @@
 
 
 /**
- * append the pipeline 'pipe' at the end of the sequence list 'seq'
+ * Append the pipeline 'pipe' at the end of the sequence list 'seq'
  * 'seq' might be NULL for the empty sequence.
  * This function returns the new first element of the sequence. unchanged if the sequence was not empty (NULL).
  */
@@ -28,7 +28,8 @@ struct sequence * sequence__append_pipeline(struct sequence *seq, struct pipelin
 }
 
 /**
- * appends elements of tail at the end of seq
+ * Append elements of tail at the end of seq.
+ * Return the updated sequence.
  */
 struct sequence * sequence__append_sequence(struct sequence *seq, struct sequence *tail) {
     struct sequence *prev    = seq;
@@ -45,8 +46,9 @@ struct sequence * sequence__append_sequence(struct sequence *seq, struct sequenc
     }
 }
 
-
-
+/**
+ * Set the 'background' flag to the pipeline of the last sequence in the linked list
+ */
 void sequence__set_background(struct sequence *seq, int background) {
     if(seq == NULL) return;
     struct sequence *prev    = seq;
@@ -58,7 +60,9 @@ void sequence__set_background(struct sequence *seq, int background) {
     prev->pipeline->background = background;
 }
 
-
+/**
+ * Free a sequence structure and all its fields
+ */
 void sequence__free(struct sequence *seq) {
     struct sequence *current = seq;
     struct sequence *next = seq;
@@ -70,6 +74,10 @@ void sequence__free(struct sequence *seq) {
     }
 }
 
+/**
+ * Execute a sequence by executing every pipeline in the sequence
+ * Return the status of the last pipeline execution
+ */
 int sequence__execute(struct sequence *seq) {
     int ret;
     struct sequence *current = seq;

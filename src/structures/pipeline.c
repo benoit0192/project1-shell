@@ -47,12 +47,12 @@ int pipeline__execute(struct pipeline *pipeline) {
 
     // set the initial input
     int fdin = dup(in);
-    int fdout;
 
     int cpid;
     for(struct pipeline *current = pipeline; current != NULL; current = current->next) {
         // redirect input
         dup2(fdin, STDIN_FILENO);
+        int fdout;
         close(fdin);
 
         // redirect output
@@ -94,8 +94,12 @@ int pipeline__execute(struct pipeline *pipeline) {
 
     if(!pipeline->background && cpid > 0) {
         // wait for last command
+        char *alarm_str = environment_variable__get("ALARM");
+        int disable_alarm = strcmp(alarm_str, "true");
+        free(alarm_str);
+        if(!disable_alarm)
+            alarm(5);
         int status;
-        alarm(5);
         waitpid(cpid, &status, 0);
         alarm(0);
         if(WIFEXITED(status)) {

@@ -108,9 +108,13 @@ void init_shell() {
     main_pid = getpid();
     signal(SIGALRM, signalHandlerAlarm);
 
-    history_load(DEFAULT_HISTORYFILE);
+    if(1) {
+        exec_script(DEFAULT_PROFILEFILE);
+    } else {
+        fprintf(stderr, "\033[33mWARNING\033[39m No profile file found (%s). $PATH, $HOME and $ALARM are not set.\n", DEFAULT_PROFILEFILE);
+    }
 
-    exec_script(DEFAULT_PROFILEFILE);
+    history_load(DEFAULT_HISTORYFILE);
 }
 
 // unallocate shell ressources before exiting
@@ -130,11 +134,7 @@ void clean_shell() {
 // starts an interactive sheel
 void interactive_shell() {
     script_filename = strdup("-");
-    struct arg_list home;
-    home.arg = environment_variable__get("HOME");
-    home.next = NULL;
-    cd(&home);
-    free(home.arg);
+    cd(NULL); // cd to HOME
     char * cmd;
     while(1) {
         char *prompt;

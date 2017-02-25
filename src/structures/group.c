@@ -24,7 +24,8 @@ void group__free(struct group * g) {
 int group__execute(struct group * g) {
     int cpid = fork();
     if(cpid == 0) {
-        return sequence__execute(g->sequence);
+        int ret = sequence__execute(g->sequence);
+        exit(ret);
     } else if(cpid < 0) {
         perror("Can't fork");
         return 1;

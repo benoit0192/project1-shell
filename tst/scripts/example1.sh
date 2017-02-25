@@ -7,3 +7,6 @@
 ls
 
 uname
+
+# unknown commands trigger error messages
+bob

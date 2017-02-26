@@ -9,7 +9,7 @@ int cd(struct arg_list *args) {
         // no argument was passed to cd, so go $HOME
         char * home = environment_variable__get("HOME");
         if(home[0] == 0) {
-            fprintf(stderr, "Can't cd to $HOME: $HOME is not set");
+            fprintf(stderr, "Can't cd to $HOME: $HOME is not set\n");
             ret = 0;
         } else
             ret = chdir(home);

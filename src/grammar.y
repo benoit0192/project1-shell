@@ -1,5 +1,6 @@
 %{
     #include <stdio.h>
+    #include "errors.h"
     #include "structures/sequence.h"
     #include "structures/pipeline.h"
     #include "structures/statement.h"
@@ -89,17 +90,17 @@ pipeline
 
 statement
 : assignment {
-    $$ = malloc(sizeof(struct statement));
+    $$ = mymalloc(sizeof(struct statement));
     $$->type = STATEMENT_TYPE_ASSIGNMENT;
     $$->statement.assignment = $1;
 }
 | command {
-    $$ = malloc(sizeof(struct statement));
+    $$ = mymalloc(sizeof(struct statement));
     $$->type = STATEMENT_TYPE_COMMAND;
     $$->statement.command = $1;
 }
 | group {
-    $$ = malloc(sizeof(struct statement));
+    $$ = mymalloc(sizeof(struct statement));
     $$->type = STATEMENT_TYPE_GROUP;
     $$->statement.group = $1;
 }
@@ -110,7 +111,7 @@ assignment
     $$ = assigment__new($1, $2);
 }
 | ASSIGNMENT_WORD {
-    $$ = assigment__new($1, strdup(""));
+    $$ = assigment__new($1, mystrdup(""));
 }
 ;
 

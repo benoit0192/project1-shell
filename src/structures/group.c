@@ -6,7 +6,7 @@
  * Allocate a new group structure and initialize its elements
  */
 struct group* group__new(struct sequence * sequence) {
-    struct group* group = malloc(sizeof(struct group));
+    struct group* group = mymalloc(sizeof(struct group));
     group->sequence = sequence;
     return group;
 }

@@ -5,10 +5,17 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "errors.h"
 #include "input.h"
 
+/**
+ * loads the history file 'filename'
+ */
 void history_load(char * filename);
 
+/**
+ * saves the current history to the file 'filename'
+ */
 void history_save(char * filename);
 
 /**
@@ -16,8 +23,19 @@ void history_save(char * filename);
  */
 void history_push(char * value);
 
+
+/**
+ * Move back in time in the history
+ * Returns a new autocomplete suggestion.
+ * the result must be freed by the user
+ */
 char * history_prev(struct input_buffer * inbuff);
 
+/**
+ * Move forward in time in the history
+ * Returns a new autocomplete suggestion.
+ * the result must be freed by the user
+ */
 char * history_next(struct input_buffer * inbuff);
 
 /**

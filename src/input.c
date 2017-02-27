@@ -7,11 +7,11 @@
 /* initial size of input buffer. at least 2 */
 #define BUFF_CHUNK 100
 
-
+// an input buffer, storing contents, cursor position...
 struct input_buffer * input_buffer__new(size_t init_size) {
-    struct input_buffer * b = malloc(sizeof(struct input_buffer));
+    struct input_buffer * b = mymalloc(sizeof(struct input_buffer));
     b->prompt = "";
-    b->buff = malloc(init_size * sizeof(char));
+    b->buff = mymalloc(init_size * sizeof(char));
     b->buff_size = init_size;
     b->pos = 0;
     b->buff[0] = 0;
@@ -74,14 +74,14 @@ int read_key() {
 }
 
 /**
- * A strlen version ignoring ANSI escape codes for color: \033[xx(;yy)m
+ * A strlen version ignoring ANSI escape codes for colors: \033[xx(;yy)m
  */
 int mystrlen(char *s) {
     int n = 0; /* size */
     for(int i = 0; s[i]; ++i) {
         if(s[i] == '\033') {
             int j = 0;
-            while(s[i+j] != 'm' && j < 10) { ++j; } /* the 100 upper boundary is to detect bad formed ANSI sequences */
+            while(s[i+j] != 'm' && j < 10) { ++j; } /* the 10 upper boundary is to detect bad formed ANSI sequences */
             if(j == 10) { /* bad formed ANSI escape sequence for color */
                 // just consider that it was an isolated \033. The for loop will increment i by 1
             } else {
@@ -96,7 +96,7 @@ int mystrlen(char *s) {
 
 
 /**
- *
+ * Refreshes the content of the input buffer on screen
  */
 volatile int rewind_cursor = 1;
 void refresh_screen(struct input_buffer * inbuff) {
@@ -157,12 +157,14 @@ void refresh_screen(struct input_buffer * inbuff) {
 
 
 /**
- *
+ * Displays 'prompt' to the user and read his input. Returns the command line
+ * that the user typed.
+ * the result must be freed by the user
  */
 char * input(char * prompt) {
     struct input_buffer inbuff;
     inbuff.prompt    = prompt;
-    inbuff.buff      = malloc(BUFF_CHUNK * sizeof(char));
+    inbuff.buff      = mymalloc(BUFF_CHUNK * sizeof(char));
     inbuff.buff_size = BUFF_CHUNK;
     inbuff.pos       = 0;
     inbuff.old_pos   = 0;
@@ -189,7 +191,7 @@ char * input(char * prompt) {
                     copy_typing = 1;
                     typing_buffer_size = inbuff.buff_size;
                 }
-                inbuff.buff = realloc(inbuff.buff, inbuff.buff_size);
+                inbuff.buff = myrealloc(inbuff.buff, inbuff.buff_size);
                 if(copy_typing)
                     typing_buffer = inbuff.buff;
             }
@@ -247,9 +249,9 @@ char * input(char * prompt) {
     if(c == 4 /* EOT */) {
         char * tmp;
         if(strlen(inbuff.buff) == 0)
-            tmp = strdup("exit");
+            tmp = mystrdup("exit");
         else
-            tmp = strdup("");
+            tmp = mystrdup("");
         if(typing_buffer != inbuff.buff)
             free(typing_buffer);
         free(inbuff.buff);

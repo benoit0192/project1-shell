@@ -15,12 +15,12 @@ struct sequence * sequence__append_pipeline(struct sequence *seq, struct pipelin
         current = current->next;
     }
     if(prev == NULL) {
-        prev = malloc(sizeof(struct sequence));
+        prev = mymalloc(sizeof(struct sequence));
         prev->pipeline = pipe;
         prev->next = NULL;
         return prev;
     } else {
-        prev->next = malloc(sizeof(struct sequence));
+        prev->next = mymalloc(sizeof(struct sequence));
         prev->next->pipeline = pipe;
         prev->next->next = NULL;
         return seq;

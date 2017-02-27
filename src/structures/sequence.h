@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include "pipeline.h"
 
+#include "../errors.h"
+
 /*---- Sequence ---------------------------------------------------------
 *   This structure stores a pipelined command as well as the sequence
 *   adjacent to that sequence

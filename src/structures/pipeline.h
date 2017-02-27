@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <stdio.h>
 
+#include "../errors.h"
 #include "statement.h"
 
 /*---- Pipeline ---------------------------------------------------------

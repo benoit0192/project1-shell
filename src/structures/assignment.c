@@ -14,14 +14,14 @@ struct environment_variable *vars = NULL;
 
 /**
  * Add a variable at the end of the linked list if it does not exist yet
- * If it does, simply overwrite the content of the existing content variable by the new one 
+ * If it does, simply overwrite the content of the existing content variable by the new one
  */
 void environment_variable__add(char *var_name, char* var_value) {
     struct environment_variable *it;
     for(it = vars; it != NULL && strcmp(it->var_name, var_name) != 0; it = it->next) {}
     if(it == NULL) {
         // var not found. add it
-        struct environment_variable *new = malloc(sizeof(struct environment_variable));
+        struct environment_variable *new = mymalloc(sizeof(struct environment_variable));
         new->var_name = var_name;
         new->var_value = var_value;
         new->next = vars;
@@ -44,10 +44,10 @@ char *environment_variable__get(char *var_name) {
     for(it = vars; it != NULL && strcmp(it->var_name, var_name) != 0; it = it->next) {}
     if(it == NULL) {
         // var not found.
-        return strdup("");
+        return mystrdup("");
     } else {
         // var found.
-        return strdup(it->var_value);
+        return mystrdup(it->var_value);
     }
 }
 
@@ -74,7 +74,7 @@ void environment_variable__free() {
  * must be freed by the user
  */
 char * replace_variables(char * cmd) {
-    char * res = malloc(REPL_BUFF_CHUNK * sizeof(char));
+    char * res = mymalloc(REPL_BUFF_CHUNK * sizeof(char));
     int res_size = REPL_BUFF_CHUNK;
     int res_i = 0;
     int cmd_i = 0;
@@ -97,7 +97,7 @@ char * replace_variables(char * cmd) {
             for(int i = 0; var_value[i] != 0; ++i, ++res_i) {
                 if(res_i+1 >= res_size) {
                     res_size += REPL_BUFF_CHUNK;
-                    res = realloc(res, res_size);
+                    res = myrealloc(res, res_size);
                 }
                 res[res_i] = var_value[i];
             }
@@ -106,7 +106,7 @@ char * replace_variables(char * cmd) {
         } else {
             if(res_i+1 >= res_size) {
                 res_size += REPL_BUFF_CHUNK;
-                res = realloc(res, res_size);
+                res = myrealloc(res, res_size);
             }
             res[res_i] = cmd[cmd_i];
             cmd_prev = cmd[cmd_i];
@@ -123,7 +123,7 @@ char * replace_variables(char * cmd) {
  * Allocate a new assignment structure and set its fields to the values passed in arguments before returning it.
  */
 struct assignment* assigment__new(char *varname, char* content) {
-    struct assignment* a = malloc(sizeof(struct assignment));
+    struct assignment* a = mymalloc(sizeof(struct assignment));
     a->varname = varname;
     a->content = content;
     return a;
@@ -134,7 +134,7 @@ struct assignment* assigment__new(char *varname, char* content) {
  * Return 0 if no error occured
  */
 int assignment__execute(struct assignment *a) {
-    environment_variable__add(strdup(a->varname), replace_variables(strdup(a->content)));
+    environment_variable__add(mystrdup(a->varname), replace_variables(mystrdup(a->content)));
     return 0;
 }
 

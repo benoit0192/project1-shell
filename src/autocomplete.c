@@ -3,13 +3,15 @@
 // maximum number of commands kept in memory
 #define HISTORY_SIZE 100
 
+// represents a command line stored in the history list
 struct history_elt {
     char * value;
-    int size;
+    int size; // strlen(value)
     struct history_elt * prev;
     struct history_elt * next;
 };
 
+// double linked list containing the command history
 struct history {
     struct history_elt * first;
     struct history_elt * last;
@@ -17,12 +19,18 @@ struct history {
     struct history_elt * current;
 };
 
+// size of the current string the shell is autocompleting
 int autocomplete_size = 0;
+
+// string the shell is currently autocompleting
 char * autocomplete_start = NULL;
-int cycle_way = 0;
+
+// the command history
 struct history history;
 
-
+/**
+ * Turns off autocompletion by reseting the string that the shell is currently autocompleting
+ */
 void reset_autocomplete() {
     if(autocomplete_start != NULL) {
         free(autocomplete_start);
@@ -57,6 +65,9 @@ char * history_pop() {
     return ret;
 }
 
+/**
+ * returns true if 'line' contains only spaces
+ */
 int line_is_empty(char * line) {
     int i;
     for(i = 0; line[i] == ' '; ++i) {}
@@ -73,8 +84,8 @@ void history_push(char * value) {
     }
     if(!line_is_empty(value)){
         // push new one
-        struct history_elt * tmp = malloc(sizeof(struct history_elt));
-        tmp->value = strdup(value);
+        struct history_elt * tmp = mymalloc(sizeof(struct history_elt));
+        tmp->value = mystrdup(value);
         tmp->size = strlen(value);
         tmp->prev = NULL;
         tmp->next = history.first;
@@ -88,6 +99,9 @@ void history_push(char * value) {
     }
 }
 
+/**
+ * loads the history file 'filename'
+ */
 void history_load(char * filename) {
     // initialize an empty history
     history.first   = NULL;
@@ -115,6 +129,9 @@ void history_load(char * filename) {
     fclose(f);
 }
 
+/**
+ * saves the current history to the file 'filename'
+ */
 void history_save(char * filename) {
     // save history to file
     FILE *f = fopen(filename, "w");
@@ -129,18 +146,28 @@ void history_save(char * filename) {
         fclose(f);
 }
 
+/**
+ * update the value of the current position in the history if the iterator 'it'
+ * is pointing to a valid new current value. does not change the current position
+ * if the iterator is not valid.
+ */
 char * update_current(struct history_elt * it) {
     if(it == NULL) {
         if(history.current != NULL)
-            return strdup(history.current->value);
+            return mystrdup(history.current->value);
         else
             return NULL;
     } else {
         history.current = it;
-        return strdup(history.current->value);
+        return mystrdup(history.current->value);
     }
 }
 
+/**
+ * Move back in time in the history
+ * Returns a new autocomplete suggestion.
+ * the result must be freed by the user
+ */
 char * history_prev(struct input_buffer * inbuff) {
     struct history_elt * it;
     if(autocomplete_start == NULL) {
@@ -166,14 +193,20 @@ char * history_prev(struct input_buffer * inbuff) {
         return NULL;
     } else {
         history.current = it;
-        return strdup(history.current->value);
+        return mystrdup(history.current->value);
     }
 }
 
+
+/**
+ * Move forward in time in the history
+ * Returns a new autocomplete suggestion.
+ * the result must be freed by the user
+ */
 char * history_next(struct input_buffer * inbuff) {
     struct history_elt * it;
     if(autocomplete_start == NULL) {
-        autocomplete_start = strdup(inbuff->buff);
+        autocomplete_start = mystrdup(inbuff->buff);
         autocomplete_start[inbuff->pos] = 0;
         autocomplete_size  = inbuff->pos;
         it = history.first;
@@ -181,7 +214,7 @@ char * history_next(struct input_buffer * inbuff) {
         if(inbuff->pos != autocomplete_size
            || strncmp(autocomplete_start, inbuff->buff, inbuff->pos) != 0) {
             reset_autocomplete();
-            autocomplete_start = strdup(inbuff->buff);
+            autocomplete_start = mystrdup(inbuff->buff);
             autocomplete_start[inbuff->pos] = 0;
             autocomplete_size  = inbuff->pos;
             it = history.first;
@@ -203,7 +236,7 @@ char * history_next(struct input_buffer * inbuff) {
  */
 char * history_match(struct input_buffer * inbuff) {
     reset_autocomplete();
-    autocomplete_start = strdup(inbuff->buff);
+    autocomplete_start = mystrdup(inbuff->buff);
     autocomplete_start[inbuff->pos] = 0;
     autocomplete_size  = inbuff->pos;
 

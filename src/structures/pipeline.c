@@ -14,13 +14,13 @@ struct pipeline * pipeline__append_statement(struct pipeline *pipe, struct state
         current = current->next;
     }
     if(prev == NULL) {
-        prev = malloc(sizeof(struct pipeline));
+        prev = mymalloc(sizeof(struct pipeline));
         prev->statement = st;
         prev->background = 0;
         prev->next = NULL;
         return prev;
     } else {
-        prev->next = malloc(sizeof(struct pipeline));
+        prev->next = mymalloc(sizeof(struct pipeline));
         prev->next->statement = st;
         prev->background = 0;
         prev->next->next = NULL;

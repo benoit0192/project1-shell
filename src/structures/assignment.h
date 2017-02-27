@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../errors.h"
+
 /*---- Assignment ---------------------------------------------------------
 *   This structure stores the variable name of an assignment statement
 *   and the content to be assigned.

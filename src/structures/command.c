@@ -4,7 +4,7 @@
  * Allocate a new command structure and initialize its elements then return the newely created command
  */
 struct command* command__new() {
-    struct command* command = malloc(sizeof(struct command));
+    struct command* command = mymalloc(sizeof(struct command));
     command->prog_name = NULL;
     command->args = NULL;
     return command;
@@ -22,11 +22,11 @@ void command__append_arg(struct command *cmd, char *arg) {
         current = current->next;
     }
     if(prev == NULL) {
-        cmd->args = malloc(sizeof(struct arg_list));
+        cmd->args = mymalloc(sizeof(struct arg_list));
         cmd->args->arg = arg;
         cmd->args->next = NULL;
     } else {
-        prev->next = malloc(sizeof(struct arg_list));
+        prev->next = mymalloc(sizeof(struct arg_list));
         prev->next->arg = arg;
         prev->next->next = NULL;
     }
@@ -60,10 +60,10 @@ int is_regular_file(const char *path)
 /**
  *  Execute a command.
  *  A command can execute a program either from its absolute or relative path.
- *  Such programms are defined in the environment variable $PATH 
+ *  Such programms are defined in the environment variable $PATH
  */
 int command__execute(struct command *cmd) {
-    char * prog_name = replace_variables(strdup(cmd->prog_name));
+    char * prog_name = replace_variables(mystrdup(cmd->prog_name));
 
     // execute builtins
     if(strcmp(cmd->prog_name, "cd") == 0) {
@@ -144,7 +144,7 @@ int command__execute(struct command *cmd) {
     it = cmd->args;
     n = 1;
     while(it != NULL) {
-        args[n] = replace_variables(strdup(it->arg));
+        args[n] = replace_variables(mystrdup(it->arg));
         ++n;
         it = it->next;
     }

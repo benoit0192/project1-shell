@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <string.h>
 
+#include "../errors.h"
 
 /*---- Command ------------------------------------------------------------
 *   This structure is used to represent a simple command.
@@ -50,7 +51,7 @@ void command__free(struct command *cmd);
 /**
  *  Execute a command.
  *  A command can execute a program either from its absolute or relative path.
- *  Such programms are defined in the environment variable $PATH 
+ *  Such programms are defined in the environment variable $PATH
  */
 int command__execute(struct command *cmd);
 

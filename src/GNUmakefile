@@ -7,20 +7,23 @@ CFLAGS=-g -Wall
 CC=clang
 
 SOURCES=main.c \
-	    grammar.c \
-	    scanner.c \
-		input.c \
-		autocomplete.c \
-		structures/statement.c \
-		structures/pipeline.c \
-		structures/sequence.c \
-		structures/command.c \
-		structures/assignment.c \
-		structures/group.c \
-		builtin/cd.c \
-		builtin/exit.c
+	grammar.c \
+	scanner.c \
+	input.c \
+	autocomplete.c \
+	errors.c \
+	structures/statement.c \
+	structures/pipeline.c \
+	structures/sequence.c \
+	structures/command.c \
+	structures/assignment.c \
+	structures/group.c \
+	builtin/cd.c \
+	builtin/exit.c
 
 all:shell
+
+.PHONY: all test clean
 
 shell: $(SOURCES)
 	$(CC) $(CFLAGS) -o $@ $^

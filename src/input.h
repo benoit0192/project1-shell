@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "errors.h"
 
 struct input_buffer {
     char * prompt;
@@ -18,7 +19,9 @@ struct input_buffer {
 #include "autocomplete.h"
 
 /**
- *
+ * Displays 'prompt' to the user and read his input. Returns the command line
+ * that the user typed.
+ * the result must be freed by the user
  */
 char * input(char * prompt);
 

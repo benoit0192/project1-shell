@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include "sequence.h"
 
+#include "../errors.h"
+
 /*---- Group ---------------------------------------------------------
 *   This structure stores the structure of a sequence contained inside
 *   the group.
